@@ -17,7 +17,7 @@ class SessionInfo< ActiveRecord::Base
 
 	def geolocate!(ip_address)
 	      # We want to geolocate using both sources in case one has better information
-	      self.loc_info = GEOIP_DB.look_up(ip_address)
+	      self.loc_info = GEOIP_DB.lookup_ip(ip_address)
 	      self.loc_info = {} if self.loc_info.blank? || loc_info[:latitude].nil? || loc_info[:longitude].nil?
 
 
