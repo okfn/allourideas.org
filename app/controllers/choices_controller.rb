@@ -1,11 +1,11 @@
 class ChoicesController < ApplicationController
   include ActionView::Helpers::TextHelper
   before_filter :authenticate, :only => [:toggle]
-  before_filter :earl_owner_or_admin_only, :only => [:activate, :deactivate, :rotate]
+  before_filter :earl_owner_or_admin_only, :only => [:activate, :deactivate, :rotate, :update]
 
   def show
-    @earl = Earl.find params[:question_id]
-    @question = Question.find(@earl.question_id)
+    @question = Question.find(params[:question_id])
+    @earl = @question.earl
     
     if params[:locale].nil? && @earl.default_lang != I18n.default_locale.to_s
 	      I18n.locale = @earl.default_lang
@@ -58,11 +58,20 @@ class ChoicesController < ApplicationController
     end
   end
   
-  
+  def update
+    choice = Choice.find(params[:id], :params => {:question_id => params[:question_id]})
+
+    if params[:choice] && params[:choice][:data]
+      choice.data = params[:choice][:data]
+      choice.save
+    end
+
+    redirect_to admin_question_url(params[:question_id])
+  end
+
   def activate
     set_choice_active(true,  t('items.you_have_successfully_activated'))
   end
-  
   
   def deactivate
     set_choice_active(false, t('items.you_have_successfully_deactivated'))
