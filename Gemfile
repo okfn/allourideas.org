@@ -3,6 +3,7 @@ source "http://gems.github.com"
 
 gem "bundler", "1.1.5"
 gem "rails", "2.3.14"
+gem "rdoc", "~> 3.12"
 gem "multi_json", "1.0.4"
 gem "hoptoad_notifier", "2.4.9"
 gem "libxml-ruby", "2.2.2", :require => "libxml"
