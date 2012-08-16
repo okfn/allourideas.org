@@ -32,8 +32,8 @@ describe Visitor do
   end
   
   it "should return level messages accurately" do
-          Visitor.leveling_message(:votes => 0, :ideas => 1).should == "Now you have cast 0 votes and added 1 idea: terrible"
-          Visitor.leveling_message(:votes => 1, :ideas => 1).should == "Now you have cast 1 vote and added 1 idea: pathetic"
-          Visitor.leveling_message(:votes => 2, :ideas => 2).should == "Now you have cast 2 votes and added 2 ideas: lame"
+    Visitor.leveling_message(:votes => 0, :ideas => 1).should include("Now you have cast 0 votes and added 1 idea: ")
+    Visitor.leveling_message(:votes => 1, :ideas => 1).should include("Now you have cast 1 vote and added 1 idea: ")
+    Visitor.leveling_message(:votes => 2, :ideas => 2).should include("Now you have cast 2 votes and added 2 ideas: ")
   end
 end
