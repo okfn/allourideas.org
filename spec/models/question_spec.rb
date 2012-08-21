@@ -6,6 +6,14 @@ describe Question do
     Factory.build(:invalid_question).save.should be_false
   end
 
+  it "should not cache the errors" do
+    question = Factory.build(:question, :name => nil)
+    question.valid?.should be_false
+
+    question.name = "question name"
+    question.valid?.should be_true
+  end
+
   describe "validations" do
     it "should not be valid without name" do
       question = Factory.build(:question, :name => nil)
@@ -16,6 +24,11 @@ describe Question do
       it "should not be valid without ideas" do
         question = Factory.build(:question, :ideas => nil)
         question.valid?(photocracy = false).should be_false
+      end
+
+      it "should be valid without ideas if the question has any choices" do
+        question = Factory.build(:question, :ideas => nil, :choices_count => 2)
+        question.valid?(photocracy = false).should be_true
       end
     end
 
@@ -102,6 +115,16 @@ describe Question do
                                           :inactive_choices_count => 9)
 
       question.active_choices.should == 42
+    end
+  end
+
+  describe "choices_count" do
+    it "should return 0 if there're no choices_count" do
+      Factory.build(:question).choices_count == 0
+    end
+
+    it "should return the choices_count if there's one" do
+      Factory.build(:question, :choices_count => 50).choices_count == 50
     end
   end
 end

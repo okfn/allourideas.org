@@ -67,6 +67,7 @@ class Question < ActiveResource::Base
   end
   
   def validate(photocracy=false)
+    errors.clear
     errors.add("Name", "is blank (Step 1)") if name.blank?
     ideas_cannot_be_blank if !photocracy && choices_count.zero?
 
