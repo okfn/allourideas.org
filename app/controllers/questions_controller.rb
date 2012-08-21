@@ -270,7 +270,7 @@ class QuestionsController < ApplicationController
     unless ((current_user.owns?(@earl)) || current_user.admin?)
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = t('user.not_authorized_error')
-      redirect_to( "/#{params[:id]}") and return
+      redirect_to earl_url(@earl) and return
     end
 
     @question = @earl.question
@@ -1075,12 +1075,12 @@ class QuestionsController < ApplicationController
       earl = current_user.earls.create(earl_options)
       ClearanceMailer.delay.deliver_confirmation(current_user, earl.name, @photocracy)
       IdeaMailer.delay.deliver_extra_information(current_user, @question.name, params[:question]['information'], @photocracy) unless params[:question]["information"].blank?
-      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{@question.fq_earl} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{@question.fq_earl}/admin\"> #{t('nav.manage_question')}</a>"      
+      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{earl_url(earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_path(@question)}\"> #{t('nav.manage_question')}</a>"      
 
       if @photocracy
-        redirect_to add_photos_url(earl.name) and return
+        redirect_to add_photos_url(earl) and return
       else
-        redirect_to(:action => 'show', :id => earl.name, :just_created => true, :controller => 'earls') and return
+        redirect_to earl_url(earl, :just_created => true) and return
       end
     else
       render(:action => "new")
@@ -1130,14 +1130,14 @@ class QuestionsController < ApplicationController
 
 
     respond_to do |format|
-      if @earl.update_attributes(params[:earl].slice(:pass, :logo, :welcome_message, :default_lang, :flag_enabled, :ga_code, :question_should_autoactivate_ideas))
+      if @earl.update_attributes!(params[:earl].slice(:pass, :logo, :welcome_message, :default_lang, :flag_enabled, :ga_code, :question_should_autoactivate_ideas))
         logger.info("Saving new information on earl")
         flash[:notice] = 'Question settings saved successfully!'
         logger.info("Saved new information on earl")
-        format.html {redirect_to(:action => 'admin', :id => @earl.name) and return }
+        format.html {redirect_to admin_question_url(@question) and return }
         # format.xml  { head :ok }
       else 
-        @partial_results_url = "#{@earl.name}/results"
+        @partial_results_url = results_question_path(@question)
         @choices = Choice.find(:all, :params => {:question_id => @question.id, :include_inactive => true})
 
         format.html { render :action => 'admin'}

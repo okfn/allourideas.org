@@ -5,12 +5,12 @@ class Question < ActiveResource::Base
 
   attr_accessor :question_text, :ideas, :url, :information, :email, :password
   
-  def self.find_id_by_name(name)
-    Earl.find(name).question_id rescue nil
+  def self.find_id_by_slug(slug)
+    Earl.find(slug).question_id rescue nil
   end
   
   def earl
-    "/#{Earl.find_by_question_id(id).name}" rescue nil
+    Earl.find_by_question_id(id) rescue nil
   end
 
   def user_can_view_results?(user, earl)
@@ -21,12 +21,8 @@ class Question < ActiveResource::Base
     end
   end
   
-  def fq_earl
-    "http://#{HOST}/#{Earl.find_by_question_id(id).name}" rescue nil
-  end
-  
   def slug
-    Earl.find_by_question_id(id).name
+    earl.slug.name if earl
   end
  
   %w(name url the_name ideas).each do |attr|
@@ -36,7 +32,11 @@ class Question < ActiveResource::Base
   end 
   
   def active_choices
-	self.choices_count - self.inactive_choices_count
+    self.choices_count - self.inactive_choices_count
+  end
+
+  def choices_count
+    attributes['choices_count'] || 0
   end
 
   def ideas=(new_ideas)
@@ -66,48 +66,21 @@ class Question < ActiveResource::Base
     errors.empty?
   end
   
-  def validate(photocracy)
+  def validate(photocracy=false)
     errors.add("Name", "is blank (Step 1)") if name.blank?
-    url_format_valid
-    url_unique
-    ideas_valid(photocracy)
+    ideas_cannot_be_blank if !photocracy && choices_count.zero?
 
-    return errors
-  end
-  
-  protected
-  def url_format_valid
-    errors.add("URL", "is blank (Step 2)")  if url.blank?
-    errors.add("URL", "contains spaces (Step 2)")  if url.include? ' '
-    errors.add("URL", "contains special characters (Step 2)") if (url.include?('+') || url.parameterize != url)
     errors
   end
   
-  def url_unique
-    begin
-      if Earl.find_by_name(attributes['url'].strip).nil?
-         Earl.find(attributes['url'].strip)
-      end
-      errors.add("URL", "has already been taken (Step 2)")
-    rescue
-      nil
-    end
-    if Earl.reserved_names.include?(attributes['url'].strip)
-      errors.add("URL", "has already been taken (Step 2)")
+  protected
+  def ideas_cannot_be_blank
+    if (ideas.blank? || ideas == default_ideas_text)
+      errors.add("Ideas", "are blank (Step 3)")
     end
   end
 
-  def ideas_valid(photocracy)
-    unless photocracy
-      if (ideas.blank? || ideas == "Add your own ideas here...\n\nFor example:\nMore hammocks on campus\nImprove student advising\nMore outdoor tables and benches\nVideo game tournaments\nStart late dinner at 8PM\nLower textbook prices\nBring back parking for sophomores")
-        errors.add("Ideas", "are blank (Step 3)")
-      end
-      add_sample_idea
-    end
-  end
-
-  def add_sample_idea
-    i = self.ideas.lines.to_a.delete_if {|l| l.blank?}
-    self.ideas += "\nsample choice" if i.length == 1
+  def default_ideas_text
+    "Add your own ideas here...\n\nFor example:\nMore hammocks on campus\nImprove student advising\nMore outdoor tables and benches\nVideo game tournaments\nStart late dinner at 8PM\nLower textbook prices\nBring back parking for sophomores"
   end
 end

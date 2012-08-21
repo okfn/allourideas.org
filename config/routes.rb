@@ -8,6 +8,7 @@ ActionController::Routing::Routes.draw do |map|
     :collection => {
     },
     :member => {
+      :admin => :get,
       :update_name => :put,
       :add_idea => :post,
       :toggle => :post,
@@ -15,7 +16,8 @@ ActionController::Routing::Routes.draw do |map|
       :delete_logo => :delete,
       :addphotos => :get,
       :upload_photos => :post,
-      :visitor_voting_history => :get
+      :visitor_voting_history => :get,
+      :results => :get
     } do |question|
 	  question.resources :prompts, 
 		  :only => [:vote, :skip, :flag],
@@ -59,7 +61,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/prompts/load_wikipedia_marketplace', :controller => 'prompts', :action => 'load_wikipedia_marketplace'
   map.connect '/wikipedia-banner-challenge/gallery', :controller => 'home', :action => 'wikipedia_banner_challenge_gallery'
 
-  map.connect '/:id', :controller => 'earls', :action => 'show'
+  map.earl '/:id', :controller => 'earls', :action => 'show'
   map.add_photos '/:id/addphotos', :controller => 'questions', :action => 'add_photos'
   map.connect '/:id/:action', :controller => 'questions'
   # rake routes

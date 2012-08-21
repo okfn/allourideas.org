@@ -1,31 +1,25 @@
 class Earl < ActiveRecord::Base
   @@reserved_names = ["questions", "question", 'about', 'privacy', 'tour', 'no_google_tracking', 'admin', 'abingo', 'earls', 'signup', 'sign_in', 'sign_out','clicks', 'fakequestion', 'photocracy', 'fotocracy']
-  validates_presence_of :question_id, :on => :create, :message => "can't be blank"
+  belongs_to :user
+  belongs_to :question
+  validates_associated :question
   validates_presence_of :name, :on => :create, :message => "can't be blank"
+  validates_uniqueness_of :name
   validates_length_of :welcome_message, :maximum=>350, :allow_nil => true, :allow_blank => true
+  validate :name_cannot_be_reserved
+
   has_friendly_id :name, :use_slug => true, :reserved => @@reserved_names 
   has_attached_file :logo, :whiny_thumbnails => true, :styles => { :banner => "450x47>", :medium => "150x150>" }
 
-  belongs_to :user
+  def name_cannot_be_reserved
+    errors.add("URL", "has already been taken (Step 2)") if Earl.reserved_names.include? name
+  end
 
   def self.reserved_names
     @@reserved_names
   end
 
-  def question
-    @question ||= Question.find(self.question_id)
-  end
-
-  def question_should_autoactivate_ideas
-    question.it_should_autoactivate_ideas
-  end
-
-  def question_should_autoactivate_ideas=(value)
-    question.it_should_autoactivate_ideas = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(value)
-    question.save
-  end
-
-  def self.voter_map(earl_name, type)
+  def self.voter_map(earl_slug, type)
     if type == "all"
       votes_by_sids = Question.get(:all_num_votes_by_visitor_id, :scope => "all_votes")
     elsif type == 'all_photocracy_votes'
@@ -36,18 +30,18 @@ class Earl < ActiveRecord::Base
       votes_by_sids = Question.get(:all_num_votes_by_visitor_id, :scope => "creators")
     elsif type == "uploaded_ideas"
          
-      earl = Earl.find earl_name
+      earl = Earl.find earl_slug
       question = Question.new
       question.id = earl.question_id
       votes_by_sids = question.get(:object_info_by_visitor_id, :object_type => 'uploaded_ideas')
     elsif type == "bounces"
-      earl = Earl.find earl_name
+      earl = Earl.find earl_slug
       question = Question.new
       question.id = earl.question_id
       votes_by_sids = question.get(:object_info_by_visitor_id, :object_type => 'bounces')
 
     elsif type == "votes"
-      earl = Earl.find earl_name
+      earl = Earl.find earl_slug
       question = Question.new
       question.id = earl.question_id
       votes_by_sids = question.get(:object_info_by_visitor_id, :object_type => 'votes')
