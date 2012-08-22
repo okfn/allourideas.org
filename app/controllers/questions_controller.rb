@@ -48,11 +48,11 @@ class QuestionsController < ApplicationController
 
     if params[:locale].nil? && @earl.default_lang != I18n.default_locale.to_s
       I18n.locale = @earl.default_lang
-      redirect_to :action => :results, :controller => :questions, :id => @earl.name and return
+      redirect_to :action => :results, :controller => :questions, :id => @earl.slug.name and return
     end
 
     logger.info "@question is #{@question.inspect}."
-    @partial_results_url = "#{@earl.name}/results"
+    @partial_results_url = "#{@earl.slug.name}/results"
     if params[:all]
       choices = Choice.find(:all, :params => {:question_id => @question_id})
     else
@@ -160,7 +160,7 @@ class QuestionsController < ApplicationController
         @missing_color = "#CCCCCC"
         render(:template => 'wikipedia/questions_results_heat', :layout => '/wikipedia/layout')
       else
-        render(:template => 'wikipedia/questions_results', :layout => '/wikipedia/layout')    
+        render(:template => 'wikipedia/questions_results', :layout => '/wikipedia/layout')
       end
       return
     end
@@ -256,7 +256,7 @@ class QuestionsController < ApplicationController
       "rgb(#{red},#{green},#{blue})"
     end
   end
-  
+
   # TODO: declare as private
   # scale numeric val from array src to array dst range, return integer
   def scale(val, src, dst)
@@ -274,7 +274,7 @@ class QuestionsController < ApplicationController
     end
 
     @question = @earl.question
-    @partial_results_url = "#{@earl.name}/results"
+    @partial_results_url = results_question_path(@question)
 
     @choices = Choice.find(:all, :params => {:question_id => @question.id, :include_inactive => true})
 
@@ -344,8 +344,6 @@ class QuestionsController < ApplicationController
     end
   end
 
-
-
   def voter_map
     logger.info "@question = Question.find_by_name(#{params[:id]}) ..."
     data = Earl.voter_map(params[:id], params[:type])
@@ -410,7 +408,7 @@ class QuestionsController < ApplicationController
       end
     end
 
-    choice_url = url_for(:action => 'show', :controller => "choices", :id => 'fakeid', :question_id => @earl.name)
+    choice_url = question_choice_url(@earl, :id => 'fakeid')
 
     tooltipformatter = "function() {  var splitresult = this.point.name.split('@@@');
                         var name = splitresult[0];
@@ -784,7 +782,6 @@ class QuestionsController < ApplicationController
 
     })
     respond_to do |format|
-      format.html { render :text => "<div id='#{type}-chart-container'></div><script>#{@votes_chart}</script>" }
       format.js { render :text => @votes_chart }
     end
   end
@@ -964,7 +961,7 @@ class QuestionsController < ApplicationController
       @earl = Earl.find_by_question_id(params[:id])
 
       if !@photocracy
-        ab_test_name = "#{@earl.name}_#{@earl.question_id}_leveling_feedback"
+        ab_test_name = "#{@earl.slug.name}_#{@earl.question_id}_leveling_feedback"
       else
         ab_test_name = nil
       end
@@ -1064,39 +1061,24 @@ class QuestionsController < ApplicationController
   # POST /questions
   # POST /questions.xml
   def create
-    @question = Question.new(params[:question].slice(:name, :ideas, :url))
-    @user = User.new(:email => params[:question]['email'],
-                     :password => params[:question]['password'],
-                     :password_confirmation => params[:question]['password']) unless signed_in?
+    @user = create_user_and_sign_in unless signed_in?
+    @earl = find_or_build_earl
+    @question = build_question_for(@earl)
 
-    if question_params_valid
-      earl_options = {:question_id => @question.id, :name => params[:question]['url'].strip}
-      earl_options.merge!(:flag_enabled => true, :photocracy => true) if @photocracy # flag is enabled by default for photocracy
-      earl = current_user.earls.create(earl_options)
-      ClearanceMailer.delay.deliver_confirmation(current_user, earl.name, @photocracy)
+    if @earl.save
+      ClearanceMailer.delay.deliver_confirmation(current_user, @earl, @photocracy)
       IdeaMailer.delay.deliver_extra_information(current_user, @question.name, params[:question]['information'], @photocracy) unless params[:question]["information"].blank?
-      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{earl_url(earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_path(@question)}\"> #{t('nav.manage_question')}</a>"      
+      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{earl_url(@earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_url(@earl)}\"> #{t('nav.manage_question')}</a>"
 
       if @photocracy
-        redirect_to add_photos_url(earl) and return
+        redirect_to add_photos_url(@earl) and return
       else
-        redirect_to earl_url(earl, :just_created => true) and return
+        redirect_to earl_url(@earl, :just_created => true) and return
       end
     else
       render(:action => "new")
     end
   end
-
-  def question_params_valid
-    if @question.valid?(@photocracy) && (signed_in? || (@user.valid? && @user.save && sign_in(@user)))
-      @question.attributes.merge!({'local_identifier' => current_user.id,
-                                  'visitor_identifier' => request.session_options[:id]})
-      return true if @question.save
-    else
-      return false
-    end
-  end
-
 
   def update_name
     @earl = Earl.find params[:id]
@@ -1130,7 +1112,7 @@ class QuestionsController < ApplicationController
 
 
     respond_to do |format|
-      if @earl.update_attributes!(params[:earl].slice(:pass, :logo, :welcome_message, :default_lang, :flag_enabled, :ga_code, :question_should_autoactivate_ideas))
+      if @earl.update_attributes!(params[:earl].slice(:pass, :logo, :welcome_message, :default_lang, :flag_enabled, :ga_code))
         logger.info("Saving new information on earl")
         flash[:notice] = 'Question settings saved successfully!'
         logger.info("Saved new information on earl")
@@ -1161,7 +1143,7 @@ class QuestionsController < ApplicationController
 
         logger.info("Deleting Logo from earl")
         flash[:notice] = 'Question settings saved successfully!'
-        format.html {redirect_to :action => "admin" and return }
+        format.html {redirect_to admin_question_url and return }
         # format.xml  { head :ok }
       else 
         format.html { render :action => "admin"}
@@ -1188,7 +1170,7 @@ class QuestionsController < ApplicationController
     else
       question = @earl.question
 
-      redis_key  = "export_#{@earl.question_id}_#{type}_#{Time.now.to_i}"
+      redis_key  = "export_#{question.id}_#{type}_#{Time.now.to_i}"
       redis_key += "_#{Digest::SHA1.hexdigest(redis_key + rand(10000000).to_s)}"
 
       question.post(:export, :type => type, :response_type => 'redis', :redis_key => redis_key)
@@ -1213,12 +1195,12 @@ class QuestionsController < ApplicationController
   end
 
   def add_photos
-    @earl = Earl.find_by_name!(params[:id])
+    @earl = Earl.find(params[:id])
     @question = @earl.question
   end
 
   def intro
-    @earl = Earl.find_by_name!(params[:id])
+    @earl = Earl.find(params[:id])
   end
 
   # necessary because the flash isn't sending AUTH_TOKEN correctly for some reason
@@ -1259,11 +1241,27 @@ class QuestionsController < ApplicationController
   end
 
   private
-    def object_info_to_hash(array)
-      hash = {}
-      array.each do |a|
-        hash[a["visitor_id"]] = a["count"]
-      end
-      return hash
-    end
+
+  def create_user_and_sign_in
+    user = User.create(:email => params[:question][:email],
+                       :password => params[:question][:password],
+                       :password_confirmation => params[:question][:password])
+    sign_in(user)
+  end
+
+  def find_or_build_earl
+    return current_user.earls.find(params[:earl][:earl_id]) if params[:earl]
+    earl_options = {}
+    earl_options[:name] = params[:question][:url].strip if params[:question][:url]
+    earl_options.merge!(:flag_enabled => true, :photocracy => true) if @photocracy # flag is enabled by default for photocracy
+    current_user.earls.build(earl_options)
+  end
+
+  def build_question_for(earl)
+    question_attributes = params[:question].slice(:name, :ideas, :url)
+    question_attributes.merge!({:local_identifier => current_user.id,
+                                :visitor_identifier => request.session_options[:id]})
+    earl.build_question(question_attributes)
+  end
+
 end

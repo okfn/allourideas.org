@@ -3,6 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe QuestionsController do
 
   def mock_question(stubs={})
+    stubs.reverse_merge!(:valid? => true)
     @mock_question ||= mock_model(Question, stubs)
   end
 
@@ -27,28 +28,23 @@ describe QuestionsController do
 
     describe "with valid params" do
       it "assigns a newly created question as @question" do
-        question_params = { 'name' => 'question', 'ideas' => 'ideas', 'url' => 'url' }
-
-        post :create, :question => question_params
-
-        question_params.each_pair do |key, value|
-          assigns[:question].send(key).should == value
-        end
+        expected_params = { 'name' => 'question', 'ideas' => 'ideas', 'url' => 'url' }
+        Question.stub!(:new).with(hash_including(expected_params)).and_return(mock_question)
+        post :create, :question => expected_params
+        assigns[:question].should equal(mock_question)
       end
 
       it "ignores any param that's not name, ideas or url" do
         params = { 'name' => 'question', 'ideas' => 'ideas', 'url' => 'url',
                    'email' => 'email', 'password' => 'password' }
-
+        expected_params = params.slice('email', 'password')
+        Question.stub!(:new).and_return(mock_question)
+        Question.should_not_receive(:new).with(hash_including(expected_params))
         post :create, :question => params
-
-        assigns[:question].attributes[:email].should be_nil
-        assigns[:question].attributes[:password].should be_nil
       end
 
       it "creates and sign in as a new user if not signed in" do
-        Question.stub!(:new).and_return(mock_question(:save => false, :valid? => true, :attributes => {}))
-        post :create, :question => { :email => 'some@email.com', :password => 'password', :url => 'url', :ideas => 'ideas' }
+        post :create, :question => { :email => 'some@email.com', :password => 'password' }
 
         controller.current_user.should == assigns[:user]
         assigns[:user].should_not be_new_record
@@ -77,29 +73,33 @@ describe QuestionsController do
 
       it "flashes a message with links to the newly created earl's page, and question's admin page" do
         sign_in_as_admin
-        question = Factory(:earl).question
-        Question.stub!(:new).and_return(question)
+        Question.stub!(:new).and_return(mock_question(:save => true, :attributes => {}))
         post :create, :question => {'url' => 'music'}
-        session[:standard_flash].should match(/.*#{earl_url('music')}.*#{admin_question_path(question)}/)
+        session[:standard_flash].should match(/.*#{earl_url('music')}.*#{admin_question_url('music')}/)
       end
 
       it "redirects to the created earl" do
         sign_in_as_admin
-        question = Factory(:earl).question
-        Question.stub!(:new).and_return(question)
+        Question.stub!(:new).and_return(mock_question(:save => true, :attributes => {}))
         post :create, :question => {'url' => 'music'}
         response.should redirect_to(earl_url('music', :just_created => true))
+      end
+
+      it "assigns the current user as the question's creator" do
+        sign_in
+        post :create, :question => {}
+        assigns[:question].creator_id.should == controller.current_user.id
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved question as @question" do
-        post :create, :question => {'name' => 'question', 'url' => 'url'}
+        post :create, :question => {'name' => 'question'}
         assigns[:question].name.should == 'question'
       end
 
       it "re-renders the 'new' template" do
-        Question.stub!(:new).and_return(mock_question(:save => false, :valid? => true))
+        Question.stub!(:new).and_return(mock_question(:save => false))
         post :create, :question => {}
         response.should render_template('new')
       end
@@ -111,88 +111,41 @@ describe QuestionsController do
     before do
       sign_in_as_admin
       @earl = Factory(:earl)
-      @question = @earl.question
+      @earl.stub!(:question).and_return(mock_question)
+      Earl.stub!(:find).with(@earl.id.to_s).and_return(@earl)
     end
 
     describe "with valid params" do
-      it "updates the requested question's earl" do
+      it "updates the requested earl" do
         put :update, :id => @earl.id, :earl => {:welcome_message => 'some_message'}
-        @earl.reload.welcome_message.should == 'some_message'
+        @earl.welcome_message.should == 'some_message'
       end
 
       it "assigns the requested question as @question" do
         put :update, :id => @earl.id, :earl => {}
-        assigns[:question].should == @question
+        assigns[:question].should == @earl.question
       end
 
       it "redirects to the question's admin page" do
         put :update, :id => @earl.id, :earl => {}
-        response.should redirect_to(admin_question_url(@question))
+        response.should redirect_to(admin_question_url(@earl.question))
       end
     end
 
     describe "with invalid params" do
-      before do
-        Question.stub!(:find).and_return(@question)
-        @question.stub!(:earl).and_return(@earl)
-        @earl.stub(:update_attributes!).and_return(false)
-      end
-
       it "assigns the requested question as @question" do
+        @earl.stub!(:update_attributes).and_return(false)
         put :update, :id => @earl.id, :earl => {}
-        assigns[:question].should == @question
+        assigns[:question].should == @earl.question
       end
 
       it "redirects to the question's admin page" do
+        @earl.stub!(:update_attributes).and_return(false)
         put :update, :id => @earl.id, :earl => {}
-        response.should redirect_to(admin_question_url(@question))
+        response.should redirect_to(admin_question_url(@earl.question))
       end
     end
 
-  end
-
-  describe "GET admin" do
-    it "assigns the requested question as @question, and its earl as @earl" do
-      earl = Factory(:earl)
-      sign_in_as earl.user
-      question = earl.question
-
-      get :admin, :id => earl.id
-
-      assigns[:question].should == question
-      assigns[:earl].should == earl
-    end
-
-    it "redirects to the earl's url and flash a notice if the user is unauthorized" do
-      sign_in
-      earl = Factory(:earl)
-
-      get :admin, :id => earl.id
-
-      response.should redirect_to(earl_url(earl))
-      flash[:notice].should_not be_nil
-    end
-
-  end
-
-  describe "POST toggle" do
-    it "should deactivate the earl, if the question was active" do
-      earl = Factory(:earl, :active => true)
-      sign_in_as earl.user
-      post :toggle, :format => 'js', :id => earl.id
-
-      JSON.parse(response.body).should == {"message" => "You've just deactivated your question", "verb" => "Deactivated"}
-      earl.reload.should_not be_active
-    end
-
-    it "should activate the question, if it was inactive" do
-      earl = Factory(:earl, :active => false)
-      sign_in_as earl.user
-      post :toggle, :format => 'js', :id => earl.id
-
-      JSON.parse(response.body).should == {"message" => "You've just activated your question", "verb" => "Activated"}
-      earl.reload.should be_active
-    end
   end
 
 end
