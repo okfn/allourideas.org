@@ -7,19 +7,14 @@ describe Question do
   end
 
   it "should not cache the errors" do
-    question = Factory.build(:question, :name => nil)
+    question = Factory.build(:question, :ideas => nil)
     question.valid?.should be_false
 
-    question.name = "question name"
+    question.ideas = "some idea"
     question.valid?.should be_true
   end
 
   describe "validations" do
-    it "should not be valid without name" do
-      question = Factory.build(:question, :name => nil)
-      question.should_not be_valid
-    end
-
     describe "site is photocracy" do
       it "should not be valid without ideas" do
         question = Factory.build(:question, :ideas => nil)
