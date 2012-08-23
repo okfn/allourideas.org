@@ -8,43 +8,11 @@ class PromptsController < ApplicationController
 
     @earl = Earl.find_by_question_id(params[:question_id])
     if params[:direction] &&
-      vote = voted_prompt.post(:vote,
-        :question_id => params[:question_id],
-          :vote => get_object_request_options(params, :vote),
-          :next_prompt => get_next_prompt_options
-        
-      )
+       vote = voted_prompt.post(:vote, :question_id => params[:question_id],
+                                       :vote => get_object_request_options(params, :vote),
+                                       :next_prompt => get_next_prompt_options)
 
-      next_prompt = Crack::XML.parse(vote.body)['prompt']
-
-      ab_test_name = get_leveling_feedback_abtest_name
-
-      leveling_message = Visitor.leveling_message(:votes => next_prompt['visitor_votes'].to_i,
-					          :ideas => next_prompt['visitor_ideas'].to_i, :ab_test_name => ab_test_name)
-
-      result = {
-        :newleft           => CGI::escapeHTML(truncate(next_prompt['left_choice_text'], :length => 140, :omission => '…')),
-        :newright          => CGI::escapeHTML(truncate(next_prompt['right_choice_text'], :length => 140, :omission => '…')),
-        :left_choice_id    => next_prompt['left_choice_id'],
-        :left_choice_url   => question_choice_path(@earl.name, next_prompt['left_choice_id']),
-        :right_choice_id   => next_prompt['right_choice_id'],
-        :right_choice_url  => question_choice_path(@earl.name, next_prompt['right_choice_id']),
-        :appearance_lookup => next_prompt['appearance_id'],
-        :prompt_id         => next_prompt['id'],
-        :leveling_message  => leveling_message,
-      }
-
-      if wikipedia?
-        # wikipedia ideas are prepended by a 4 character integer
-        # that represents their image id
-        result[:left_image_id] = CGI::escapeHTML(next_prompt['left_choice_text'].split('-',2)[0])
-        result[:right_image_id] = CGI::escapeHTML(next_prompt['right_choice_text'].split('-',2)[0])
-        result[:newleft] = CGI::escapeHTML(truncate(next_prompt['left_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />")
-        result[:newright] = CGI::escapeHTML(truncate(next_prompt['right_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />")
-      end
-
-      result = add_photocracy_info(result, next_prompt, params[:question_id]) if @photocracy
-      render :json => result.to_json
+      render :json => next_prompt(vote.body).to_json
     else
       render :text => 'Vote unsuccessful.', :status => :unprocessable_entity
     end
@@ -56,41 +24,14 @@ class PromptsController < ApplicationController
 
     logger.info "Getting ready to skip out on Prompt #{prompt_id}, Question #{params[:id]}"
     @prompt = Prompt.find(prompt_id, :params => {:question_id => params[:question_id]})
-    
     @earl = Earl.find_by_question_id(params[:question_id])
+
     if skip = @prompt.post(:skip, :question_id => question_id,
                            :skip => get_object_request_options(params, :skip),
                            :next_prompt => get_next_prompt_options)
-      next_prompt = Crack::XML.parse(skip.body)['prompt']
-      
-      ab_test_name = get_leveling_feedback_abtest_name
-      leveling_message = Visitor.leveling_message(:votes => next_prompt['visitor_votes'].to_i,
-					          :ideas => next_prompt['visitor_ideas'].to_i, :ab_test_name => ab_test_name)
-
-      result = {
-        :newleft           => CGI::escapeHTML(truncate(next_prompt['left_choice_text'], :length => 140, :omission => '…')),
-        :newright          => CGI::escapeHTML(truncate(next_prompt['right_choice_text'], :length => 140, :omission => '…')),
-        :appearance_lookup => next_prompt['appearance_id'],
-        :prompt_id         => next_prompt['id'],
-        :left_choice_id    => next_prompt['left_choice_id'],
-        :left_choice_url   => question_choice_path(@earl.name, next_prompt['left_choice_id']),
-        :right_choice_id   => next_prompt['right_choice_id'],
-        :right_choice_url  => question_choice_path(@earl.name, next_prompt['right_choice_id']),
-        :leveling_message  => leveling_message,
-        :message => t('vote.cant_decide_message')
-      }
-
-      if wikipedia?
-        # wikipedia ideas are prepended by a 4 character integer
-        # that represents their image id
-        result[:left_image_id] = CGI::escapeHTML(next_prompt['left_choice_text'].split('-',2)[0])
-        result[:right_image_id] = CGI::escapeHTML(next_prompt['right_choice_text'].split('-',2)[0])
-        result[:newleft] = CGI::escapeHTML(truncate(next_prompt['left_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />")
-        result[:newright] = CGI::escapeHTML(truncate(next_prompt['right_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />")
-      end
-
-      result = add_photocracy_info(result, next_prompt, params[:question_id]) if @photocracy
-      render :json => result.to_json
+      next_prompt = next_prompt(skip.body)
+      next_prompt[:message] = t('vote.cant_decide_message')
+      render :json => next_prompt.to_json
     else
       render :json => '{"error" : "Skip failed"}'
     end
@@ -129,27 +70,9 @@ class PromptsController < ApplicationController
     end
 
     if flag_choice_success && skip
-      next_prompt = Crack::XML.parse(skip.body)['prompt']
-      
-      ab_test_name = get_leveling_feedback_abtest_name
-      leveling_message = Visitor.leveling_message(:votes => next_prompt['visitor_votes'].to_i,
-					          :ideas => next_prompt['visitor_ideas'].to_i, :ab_test_name => ab_test_name)
-
-      result = {
-        :newleft           => CGI::escapeHTML(truncate(next_prompt['left_choice_text'], :length => 140, :omission => '…')),
-        :newright          => CGI::escapeHTML(truncate(next_prompt['right_choice_text'], :length => 140, :omission => '…')),
-        :appearance_lookup => next_prompt['appearance_id'],
-        :left_choice_id    => next_prompt['left_choice_id'],
-        :left_choice_url   => question_choice_path(@earl.name, next_prompt['left_choice_id']),
-        :right_choice_id   => next_prompt['right_choice_id'],
-        :right_choice_url  => question_choice_path(@earl.name, next_prompt['right_choice_id']),
-        :prompt_id         => next_prompt['id'],
-        :leveling_message  => leveling_message,
-        :message => t('vote.flag_complete_message')
-      }
-
-      result = add_photocracy_info(result, next_prompt, params[:question_id]) if @photocracy
-      render :json => result.to_json
+      next_prompt = next_prompt(skip.body)
+      next_prompt[:message] = t('vote.flag_complete_message')
+      render :json => next_prompt.to_json
     else
       render :json => {:error => "Flag of choice failed",
       :redirect => url_for(:controller => :home, :action => :index )}.to_json
@@ -162,29 +85,63 @@ class PromptsController < ApplicationController
   end
 
   private
-  def add_photocracy_info(result, next_prompt, question_id)
-    newright_photo     = Photo.find(next_prompt['right_choice_text'])
-    newleft_photo      = Photo.find(next_prompt['left_choice_text'])
-    future_left_photo  = Photo.find(next_prompt['future_left_choice_text_1'])
-    future_right_photo = Photo.find(next_prompt['future_right_choice_text_1'])
+  def next_prompt(body)
+    prompt = Crack::XML.parse(body)['prompt']
 
-    result.merge!({
-      :visitor_votes        => next_prompt['visitor_votes'],
+    result = {
+      :newleft           => CGI::escapeHTML(truncate(prompt['left_choice_text'], :length => 140, :omission => '…')),
+      :newright          => CGI::escapeHTML(truncate(prompt['right_choice_text'], :length => 140, :omission => '…')),
+      :appearance_lookup => prompt['appearance_id'],
+      :prompt_id         => prompt['id'],
+      :leveling_message  => leveling_message_for(prompt),
+    }
+
+    result.merge!(wikipedia_info_for(prompt)) if wikipedia?
+    result.merge!(photocracy_info_for(prompt, params[:question_id])) if @photocracy
+
+    result
+  end
+
+  def leveling_message_for(prompt)
+    Visitor.leveling_message(:votes => prompt['visitor_votes'].to_i,
+                             :ideas => prompt['visitor_ideas'].to_i,
+                             :ab_test_name => get_leveling_feedback_abtest_name)
+  end
+
+  def wikipedia_info_for(prompt)
+    # wikipedia ideas are prepended by a 4 character integer
+    # that represents their image id
+    {
+      :left_image_id => CGI::escapeHTML(prompt['left_choice_text'].split('-',2)[0]),
+      :right_image_id => CGI::escapeHTML(prompt['right_choice_text'].split('-',2)[0]),
+      :newleft => CGI::escapeHTML(truncate(prompt['left_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />"),
+      :newright => CGI::escapeHTML(truncate(prompt['right_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />")
+    }
+  end
+
+  def photocracy_info_for(prompt, question_id)
+    newright_photo     = Photo.find(prompt['right_choice_text'])
+    newleft_photo      = Photo.find(prompt['left_choice_text'])
+    future_left_photo  = Photo.find(prompt['future_left_choice_text_1'])
+    future_right_photo = Photo.find(prompt['future_right_choice_text_1'])
+
+    {
+      :visitor_votes        => prompt['visitor_votes'],
       :newright_photo       => newright_photo.image.url(:medium),
       :newright_photo_thumb => newright_photo.image.url(:thumb),
       :newleft_photo        => newleft_photo.image.url(:medium),
       :newleft_photo_thumb  => newleft_photo.image.url(:thumb),
       :future_left_photo    => future_left_photo.image.url(:medium),
       :future_right_photo   => future_right_photo.image.url(:medium),
-      :newleft_url          => vote_question_prompt_url(question_id, next_prompt['id'], :direction => :left),
-      :newright_url         => vote_question_prompt_url(question_id, next_prompt['id'], :direction => :right),
-      :newleft_choice_url   => question_choice_url(@earl.name, next_prompt['left_choice_id']), 
-      :newright_choice_url  => question_choice_url(@earl.name, next_prompt['right_choice_id']),
-      :flag_url             => flag_question_prompt_url(question_id, next_prompt['id'], :format => :js),
-      :skip_url             => skip_question_prompt_url(question_id, next_prompt['id'], :format => :js),
+      :newleft_url          => vote_question_prompt_url(question_id, prompt['id'], :direction => :left),
+      :newright_url         => vote_question_prompt_url(question_id, prompt['id'], :direction => :right),
+      :newleft_choice_url   => question_choice_url(@earl, prompt['left_choice_id']),
+      :newright_choice_url  => question_choice_url(@earl, prompt['right_choice_id']),
+      :flag_url             => flag_question_prompt_url(question_id, prompt['id'], :format => :js),
+      :skip_url             => skip_question_prompt_url(question_id, prompt['id'], :format => :js),
       :voted_at             => Time.now.getutc.iso8601,
       :voted_prompt_winner  => params[:direction]
-    })
+    }
   end
 
   def get_object_request_options(params, request_type)
@@ -222,11 +179,6 @@ class PromptsController < ApplicationController
   end
       
   def get_leveling_feedback_abtest_name
-      if !@photocracy
-         ab_test_name = "#{@earl.name}_#{@earl.question_id}_leveling_feedback_with_5_treatments"
-      else
-	 ab_test_name = nil
-      end
-      ab_test_name
+    "#{@earl.slug.name}_#{@earl.question_id}_leveling_feedback_with_5_treatments" if !@photocracy
   end
 end

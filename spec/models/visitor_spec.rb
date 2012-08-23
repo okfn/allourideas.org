@@ -36,4 +36,14 @@ describe Visitor do
     Visitor.leveling_message(:votes => 1, :ideas => 1).should include("Now you have cast 1 vote and added 1 idea: ")
     Visitor.leveling_message(:votes => 2, :ideas => 2).should include("Now you have cast 2 votes and added 2 ideas: ")
   end
+
+  it "shouldn't A/B test the level message's treatment form in a test environment" do
+    test_environments = ["cucumber", "test"]
+    Abingo.should_not_receive(:test)
+
+    test_environments.each do |env|
+      Rails.stub!(:env).and_return(env)
+      Visitor.leveling_message(:votes => 0, :ideas => 0, :ab_test_name => 'ab_test_name')
+    end 
+  end
 end

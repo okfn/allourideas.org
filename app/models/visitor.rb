@@ -10,7 +10,7 @@ class Visitor < ActiveRecord::Base
 	F = 0.7
 
 	def self.leveling_message(params = {:votes => 0, :ideas => 0, :ab_test_name => nil})
-		if params[:ab_test_name].nil? || Rails.env == "cucumber"
+		if params[:ab_test_name].nil? || ["cucumber", "test"].include?(Rails.env)
 		  treatment = "with_adjective"
 		else
 		  treatment = Abingo.test(params[:ab_test_name], ["no_feedback", "no_adjective", "with_adjective", "with_votes_only", "with_average"]) 
