@@ -13,12 +13,12 @@
       %tbody 
         -@choices.each do |choice|
           %tr{:class => cycle ("row1", "row2")}
-            %td.title= link_to  image_tag(Photo.find(choice.data).image.url(:thumb)), :action => 'show', :controller => "choices", :id => choice.id, :question_id => @earl.name
+            %td.title= link_to  image_tag(Photo.find(choice.data).image.url(:thumb)), question_choice_url(@question, choice.id)
             %td.votes= choice.attributes['score'].round.to_s
             %td.votes= choice.attributes['user_created'] ? t('admin.user') : t('admin.seed')
             %td.votes{:id => "choice_#{choice.id}_status"}
               %label{:class => ('Deactivated' unless choice.active?)}
-                = check_box_tag :choice_active, choice.id, choice.active?, :class => 'activation', :href => toggle_choice_status_url(@earl.id, choice.id, :format => :js) if @choices.size > 3
+                = check_box_tag :choice_active, choice.id, choice.active?, :class => 'activation', :href => toggle_question_choice_url(@question, choice, :format => :js) if @choices.size > 3
                 %span= choice.active? ? t('items.list.activated') : t('items.list.deactivated')
 
     %p
@@ -43,7 +43,7 @@
       
         %h7.strong.no_margin= t('admin.password_protect_exp')
         %p
-          = "#{t('admin.username')}: #{@earl.name} <br />"
+          = "#{t('admin.username')}: #{@earl.slug.name} <br />"
           = f.label :pass, "#{t('user.password')}:"
           = f.text_field :pass, :id => "passfield"
         %h7.strong.no_margin= t('admin.google_analytics_code')
@@ -54,7 +54,7 @@
       
         -#%h7.strong.no_margin
           -if @earl.logo_file_name
-            =link_to("Delete existing logo", delete_logo_question_path(:id => @earl.name), :method => :delete)
+            =link_to("Delete existing logo", delete_logo_question_path(@question), :method => :delete)
             %br
             =t('admin.replace_logo_exp')
           -else

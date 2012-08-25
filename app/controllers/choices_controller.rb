@@ -33,7 +33,7 @@ class ChoicesController < ApplicationController
         format.html  { render :layout => !request.xhr? }
       end
     else
-      redirect_to('/') and return
+      redirect_to(root_url) and return
     end
   end
   
@@ -63,12 +63,11 @@ class ChoicesController < ApplicationController
   def update
     choice = Choice.find(params[:id], :params => {:question_id => params[:question_id]})
 
-    if params[:choice] && params[:choice][:data]
+    if params[:choice]
       choice.data = params[:choice][:data]
-    end
-    if params[:choice_choice] && params[:choice_choice][:related_choice_id]
-      related_choice_id = params[:choice_choice][:related_choice_id]
-      choice.related_choice = Choice.find(related_choice_id, :params => {:question_id => params[:question_id]}) rescue nil
+      related_choice_id = params[:choice][:related_choice_id]
+      related_choice_id = nil if related_choice_id.blank?
+      choice.related_choice_id = related_choice_id
     end
     choice.save
 
@@ -85,7 +84,7 @@ class ChoicesController < ApplicationController
 
   def rotate
     if @photocracy
-       @choice = Choice.find(params[:id], :params => {:question_id => @earl.question_id})
+       @choice = Choice.find(params[:id], :params => {:question_id => params[:question_id]})
        @image = Photo.find(@choice.data.strip)
        rotation = params[:deg].to_f
        rotation ||= 90 # Optional, otherwise, check for nil!
@@ -106,11 +105,10 @@ class ChoicesController < ApplicationController
     respond_to do |format|
        if @choice.save
          flash[:notice] = success_message + " '#{@choice.attributes['data']}'"
-         format.html {redirect_to(:controller => :earls, :action => :show, :id => @earl.name) and return}
        else
          flash[:notice] = "There was an error, could not save choice settings"
-         format.html {redirect_to(:controller => :earls, :action => :show, :id => @earl.name) and return}
        end
+       format.html {redirect_to earl_url(@earl) and return}
     end
 
   end

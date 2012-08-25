@@ -30,7 +30,7 @@
         -@choices.each do |choice|
           -i = @all_choices.index(choice)
           -photo = Photo.find(choice.data)
-          =link_to(' ', {:action => 'show', :controller => "choices", :id => choice.id, :question_id => @earl.name}, :class => 'float_left photo_frame', :style => "background: url('#{photo.image.url(:medium)}') center center no-repeat; width:70% ;margin-bottom:50px;")
+          =link_to(' ', question_choice_url(@question, choice.id), :class => 'float_left photo_frame', :style => "background: url('#{photo.image.url(:medium)}') center center no-repeat; width:70% ;margin-bottom:50px;")
 
           .float_left{:style => 'width:20%'}
             RANKING

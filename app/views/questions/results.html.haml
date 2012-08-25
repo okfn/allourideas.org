@@ -19,7 +19,7 @@
         %tbody
           - @choices.each do |choice|
             %tr
-              %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(@earl.name, choice), :"data-toggle" => "modal-ajax"
+              %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(@question, choice), :"data-toggle" => "modal-ajax"
               %td.span4.choice-progress
                 .progress.progress-gray
                   .bar{:style => "width:#{choice.attributes['score']}%"}

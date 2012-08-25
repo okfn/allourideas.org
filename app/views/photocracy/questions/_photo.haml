@@ -1,5 +1,5 @@
 %a.photo_frame{:href => vote_question_prompt_url(@question.id, @prompt.id, :direction => direction),
-              :thumb => photo.image.url(:thumb), :choice_url => url_for(:action => :show, :controller => :choices, :id => choice, :question_id => params[:id]), :class => "#{direction} vote", :direction => direction, :future_photo => future_photo.image.url(:medium), :id => direction == "left" ? "leftside" : "rightside"}
+              :thumb => photo.image.url(:thumb), :choice_url => question_choice_url(@question, choice), :class => "#{direction} vote", :direction => direction, :future_photo => future_photo.image.url(:medium), :id => direction == "left" ? "leftside" : "rightside"}
   %table.current
     %tr
       %td

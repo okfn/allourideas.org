@@ -42,7 +42,8 @@ class PromptsController < ApplicationController
     reason = params[:flag_reason]
     inappropriate_side = params[:side]
     question_id = params[:question_id]
-    @earl = Earl.find_by_question_id(question_id)
+    question = Question.find(question_id)
+    @earl = question.earl
 
     @prompt = Prompt.find(prompt_id, :params => {:question_id => question_id})
     choice_id = inappropriate_side == "left_flag" ? @prompt.left_choice_id : @prompt.right_choice_id 
@@ -57,7 +58,7 @@ class PromptsController < ApplicationController
 
     new_choice = Crack::XML.parse(c.body)['choice']
     flag_choice_success = (c.code == "201" && new_choice['active'] == false)
-    IdeaMailer.delay.deliver_flag_notification(@earl, new_choice["id"], new_choice["data"], reason, @photocracy)
+    IdeaMailer.delay.deliver_flag_notification(question, new_choice["id"], new_choice["data"], reason, @photocracy)
 
     begin
       skip = @prompt.post(:skip, :question_id => question_id,
@@ -135,8 +136,8 @@ class PromptsController < ApplicationController
       :future_right_photo   => future_right_photo.image.url(:medium),
       :newleft_url          => vote_question_prompt_url(question_id, prompt['id'], :direction => :left),
       :newright_url         => vote_question_prompt_url(question_id, prompt['id'], :direction => :right),
-      :newleft_choice_url   => question_choice_url(@earl, prompt['left_choice_id']),
-      :newright_choice_url  => question_choice_url(@earl, prompt['right_choice_id']),
+      :newleft_choice_url   => question_choice_url(question_id, prompt['left_choice_id']),
+      :newright_choice_url  => question_choice_url(question_id, prompt['right_choice_id']),
       :flag_url             => flag_question_prompt_url(question_id, prompt['id'], :format => :js),
       :skip_url             => skip_question_prompt_url(question_id, prompt['id'], :format => :js),
       :voted_at             => Time.now.getutc.iso8601,

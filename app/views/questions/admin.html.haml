@@ -24,7 +24,7 @@
       %tbody 
         -for choice in @choices #.sort_by {|x| [(!!x.attributes['active']).to_s, x.data]}
           %tr
-            %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(@earl.name, choice), :id => choice.id, :question_id => @earl.name, :"data-toggle" => "modal-ajax"
+            %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(@question, choice), :id => choice.id, :question_id => @question.id, :"data-toggle" => "modal-ajax"
             %td.votes= choice.attributes['score'].round.to_s
             %td.votes= choice.attributes['user_created'] ? t('admin.user') : t('admin.seed')
             %td.votes{:id => "choice_#{choice.id}_status"}
@@ -90,7 +90,7 @@
             %label.checkbox
               = f.check_box :flag_enabled
               = f.label :flag_enabled, t('admin.allow_flag_as_inappropriate') + link_to(' <i class="icon-question-sign"></i>', '#allow_flag_as_inappropriate_exp', :"data-toggle" => 'modal')
-              = f.check_box :question_should_autoactivate_ideas
+              = check_box :question, :it_should_autoactivate_ideas
               = f.label :question_should_autoactivate_ideas, t('admin.auto_activate_exp')
         .form-actions
           %button.btn.btn-primary{:type => 'submit'}
@@ -126,7 +126,7 @@
       %button.close{:"data-dismiss" => 'modal'} x
       %h2= t('questions.edit_question')
     .modal-body
-      - form_tag update_name_question_path(@earl), :method => :put do |f|
+      - form_tag update_name_question_path(@question), :method => :put do |f|
         %p
           =t('questions.your_current_question_text', :question_text => h(@question.name), :"1" => '<span class="question-name">', :"_1" => '</span>')
         %p 

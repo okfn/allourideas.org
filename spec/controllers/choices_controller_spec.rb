@@ -23,10 +23,11 @@ describe ChoicesController do
       Choice.stub!(:find).and_return(choice)
 
       choice.expects(:data=).with(:new_name)
+      choice.expects(:related_choice_id=).with(:related_choice_id)
       choice.expects(:save)
 
       put :update, :id => :choice_id, :question_id => :question_id,
-                   :choice => { :data => :new_name }
+                   :choice => { :data => :new_name, :related_choice_id => :related_choice_id }
     end
 
     it "redirects to choice's question admin page" do

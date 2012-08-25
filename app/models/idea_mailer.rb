@@ -5,33 +5,34 @@ class IdeaMailer < ActionMailer::Base
 
   default_url_options[:host] = HOST
 
-  def notification(earl, question_name, choice_text, choice_id, photocracy=false)
+  def notification(earl, question, choice_text, choice_id, photocracy=false)
     setup_email(earl.user, photocracy)
 
-    @subject += "#{photocracy ? 'photo' : 'idea'} added to question: #{question_name}"
+    @subject += "#{photocracy ? 'photo' : 'idea'} added to question: #{question.name}"
     @body[:question_name] = question_name
     @body[:earl] = earl
     @body[:choice_text] = choice_text
     @body[:choice_id] = choice_id
-    @body[:choice_url] = get_choice_url(earl.name, choice_id, photocracy, true)
+    @body[:choice_url] = get_choice_url(question, choice_id, photocracy, true)
     @body[:photocracy] = photocracy
     @body[:object_type] = photocracy ? I18n.t('common.photo') : I18n.t('common.idea')
 
   end
   
-  def notification_for_active(earl, question_name, choice_text, choice_id, photocracy=false)
+  def notification_for_active(earl, question, choice_text, choice_id, photocracy=false)
     setup_email(earl.user, photocracy)
-    @subject += "#{photocracy ? 'photo' : 'idea'} added to question: #{question_name}"
+    @subject += "#{photocracy ? 'photo' : 'idea'} added to question: #{question.name}"
     @body[:question_name] = question_name
     @body[:earl] = earl
     @body[:choice_text] = choice_text
     @body[:choice_id] = choice_id
-    @body[:choice_url] = get_choice_url(earl.name, choice_id, photocracy, false)
+    @body[:choice_url] = get_choice_url(question, choice_id, photocracy, false)
     @body[:photocracy] = photocracy
     @body[:object_type] = photocracy ? I18n.t('common.photo') : I18n.t('common.idea')
   end
 
-  def flag_notification(earl, choice_id, choice_data, explanation, photocracy=false)
+  def flag_notification(question, choice_id, choice_data, explanation, photocracy=false)
+    earl = question.earl
     setup_email(earl.user, photocracy)
     
     @subject += "Possible inappropriate #{photocracy ? 'photo' : 'idea'} flagged by user"
@@ -39,7 +40,7 @@ class IdeaMailer < ActionMailer::Base
     @body[:earl] = earl
     @body[:choice_id] = choice_id
     @body[:choice_data] = choice_data
-    @body[:choice_url] = get_choice_url(earl.name, choice_id, photocracy, true)
+    @body[:choice_url] = get_choice_url(question, choice_id, photocracy, true)
     @body[:explanation] = explanation
     @body[:photocracy] = photocracy
     @body[:object_type] = photocracy ? I18n.t('common.photo') : I18n.t('common.idea')
@@ -88,8 +89,8 @@ class IdeaMailer < ActionMailer::Base
 
     end
 
-    def get_choice_url(earl_name, choice_id, photocracy, activate)
-       url_options = {:question_id => earl_name, :id => choice_id}
+    def get_choice_url(question, choice_id, photocracy, activate)
+       url_options = {:question_id => question.id, :id => choice_id}
        url_options.merge!(:photocracy_mode => true) if photocracy && Rails.env == "cucumber"
        url_options.merge!(:login_reminder => true) if photocracy
 

@@ -75,7 +75,7 @@ describe QuestionsController do
         sign_in_as_admin
         Question.stub!(:new).and_return(mock_question(:save => true, :attributes => {}))
         post :create, :question => {'url' => 'music'}
-        session[:standard_flash].should match(/.*#{earl_url('music')}.*#{admin_question_url('music')}/)
+        session[:standard_flash].should match(/.*#{earl_url('music')}.*#{admin_question_url(mock_question)}/)
       end
 
       it "redirects to the created earl" do
@@ -111,41 +111,88 @@ describe QuestionsController do
     before do
       sign_in_as_admin
       @earl = Factory(:earl)
-      @earl.stub!(:question).and_return(mock_question)
-      Earl.stub!(:find).with(@earl.id.to_s).and_return(@earl)
+      @question = @earl.question
     end
 
     describe "with valid params" do
-      it "updates the requested earl" do
-        put :update, :id => @earl.id, :earl => {:welcome_message => 'some_message'}
-        @earl.welcome_message.should == 'some_message'
+      it "updates the requested question's earl" do
+        put :update, :id => @question.id, :earl => {:welcome_message => 'some_message'}
+        @earl.reload.welcome_message.should == 'some_message'
       end
 
       it "assigns the requested question as @question" do
-        put :update, :id => @earl.id, :earl => {}
-        assigns[:question].should == @earl.question
+        put :update, :id => @question.id, :earl => {}
+        assigns[:question].should == @question
       end
 
       it "redirects to the question's admin page" do
-        put :update, :id => @earl.id, :earl => {}
-        response.should redirect_to(admin_question_url(@earl.question))
+        put :update, :id => @question.id, :earl => {}
+        response.should redirect_to(admin_question_url(@question))
       end
     end
 
     describe "with invalid params" do
+      before do
+        Question.stub!(:find).and_return(@question)
+        @question.stub!(:earl).and_return(@earl)
+        @earl.stub(:update_attributes).and_return(false)
+      end
+
       it "assigns the requested question as @question" do
-        @earl.stub!(:update_attributes).and_return(false)
-        put :update, :id => @earl.id, :earl => {}
-        assigns[:question].should == @earl.question
+        put :update, :id => @question.id, :earl => {}
+        assigns[:question].should == @question
       end
 
       it "redirects to the question's admin page" do
-        @earl.stub!(:update_attributes).and_return(false)
-        put :update, :id => @earl.id, :earl => {}
-        response.should redirect_to(admin_question_url(@earl.question))
+        put :update, :id => @question.id, :earl => {}
+        response.should redirect_to(admin_question_url(@question))
       end
     end
 
+  end
+
+  describe "GET admin" do
+    it "assigns the requested question as @question, and its earl as @earl" do
+      earl = Factory(:earl)
+      sign_in_as earl.user
+      question = earl.question
+
+      get :admin, :id => question.id
+
+      assigns[:question].should == question
+      assigns[:earl].should == earl
+    end
+
+    it "redirects to the earl's url and flash a notice if the user is unauthorized" do
+      sign_in
+      earl = Factory(:earl)
+
+      get :admin, :id => earl.question.id
+
+      response.should redirect_to(earl_url(earl))
+      flash[:notice].should_not be_nil
+    end
+
+  end
+
+  describe "POST toggle" do
+    it "should deactivate the earl, if the question was active" do
+      earl = Factory(:earl, :active => true)
+      sign_in_as earl.user
+      post :toggle, :format => 'js', :id => earl.question_id
+
+      JSON.parse(response.body).should == {"message" => "You've just deactivated your question", "verb" => "Deactivated"}
+      earl.reload.should_not be_active
+    end
+
+    it "should activate the earl, if it was inactive" do
+      earl = Factory(:earl, :active => false)
+      sign_in_as earl.user
+      post :toggle, :format => 'js', :id => earl.question_id
+
+      JSON.parse(response.body).should == {"message" => "You've just activated your question", "verb" => "Activated"}
+      earl.reload.should be_active
+    end
   end
 
 end

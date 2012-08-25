@@ -184,7 +184,7 @@ class ApplicationController < ActionController::Base
     if @earl
       @earl.name == 'wikipedia-banner-challenge'
     elsif controller_name == 'questions' && params[:id]
-      e = Earl.find_by_name('wikipedia-banner-challenge')
+      e = Earl.find('wikipedia-banner-challenge') rescue ""
       !e.blank? && e.question_id == params[:id].to_i
     end
   end

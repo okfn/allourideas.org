@@ -45,15 +45,19 @@ class Choice < ActiveResource::Base
     ChoiceChoice.find_by_choice_id(id).related_choice_id rescue nil
   end
 
-  def related_choice=(choice)
-    choice_choice.update_attributes!(:related_choice_id => nil) and return unless choice
-    return if choice.question_id != question_id
-    choice_choice.update_attributes!(:related_choice_id => choice.id)
-    choice
+  def related_choice_id=(choice_id)
+    choice_choice.update_attributes!(:related_choice_id => nil) and return unless choice_id
+    return unless choice_belongs_to_the_same_question?(choice_id)
+    choice_choice.update_attributes!(:related_choice_id => choice_id)
+    self
   end
 
   private
   def choice_choice
     ChoiceChoice.find_or_create_by_choice_id(id)
+  end
+
+  def choice_belongs_to_the_same_question?(choice_id)
+    Choice.find(choice_id, :params => { :question_id => self.question_id }) rescue false
   end
 end

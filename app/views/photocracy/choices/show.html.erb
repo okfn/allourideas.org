@@ -49,7 +49,7 @@
        <%= t('items.list.status').upcase %>
        <h4>
         <label class="<%= 'Deactivated' unless @choice.active? %>">
-          <%= check_box_tag :choice_active, @choice.id, @choice.active?, :class => 'activation', :href => toggle_choice_status_url(@earl.id, @choice.id, :format => :js) %>
+          <%= check_box_tag :choice_active, @choice.id, @choice.active?, :class => 'activation', :href => toggle_question_choice_url(@question, @choice, :format => :js) %>
           <span> <%= @choice.active? ? t('items.list.activated') : t('items.list.deactivated') %></span>
         </label>
        </h4>

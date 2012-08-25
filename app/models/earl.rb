@@ -6,10 +6,14 @@ class Earl < ActiveRecord::Base
   validates_presence_of :name, :on => :create, :message => "can't be blank"
   validates_uniqueness_of :name
   validates_length_of :welcome_message, :maximum=>350, :allow_nil => true, :allow_blank => true
-  validate :name_cannot_be_reserved
-
   has_friendly_id :name, :use_slug => true, :reserved => @@reserved_names 
   has_attached_file :logo, :whiny_thumbnails => true, :styles => { :banner => "450x47>", :medium => "150x150>" }
+
+  named_scope :photocracy, :conditions => { :photocracy => true }
+  named_scope :not_photocracy, :conditions => { :photocracy => false }
+  named_scope :by_creation_date, :order => "created_at ASC"
+
+  validate :name_cannot_be_reserved
 
   def name_cannot_be_reserved
     errors.add("URL", "has already been taken (Step 2)") if Earl.reserved_names.include? name

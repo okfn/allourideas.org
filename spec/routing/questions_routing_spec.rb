@@ -29,6 +29,10 @@ describe QuestionsController do
     it "maps #destroy" do
       route_for(:controller => "questions", :action => "destroy", :id => "1").should == {:path =>"/questions/1", :method => :delete}
     end
+
+    it "maps #admin" do
+      route_for(:controller => "questions", :action => "admin", :id => "1").should == {:path =>"/questions/1/admin", :method => :get}
+    end
   end
 
   describe "route recognition" do
@@ -58,6 +62,10 @@ describe QuestionsController do
 
     it "generates params for #destroy" do
       params_from(:delete, "/questions/1").should == {:controller => "questions", :action => "destroy", :id => "1"}
+    end
+
+    it "generates params for #admin" do
+      params_from(:get, "/slug/admin").should == {:controller => "questions", :action => "admin", :id => "slug"}
     end
   end
 end

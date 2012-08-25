@@ -28,7 +28,7 @@
           -for earl in @earls
             -q = @questions_map[earl.question_id] or next
             %tr
-              %td.title= link_to h(truncate(q.attributes['name'], :length => 140, :omission => '…')), url_for(:controller => :questions, :action => :admin, :id => earl.name)
+              %td.title= link_to h(truncate(q.attributes['name'], :length => 140, :omission => '…')), admin_question_path(q)
               %td= q.votes_count
               %td= q.recent_votes
               -if current_user.admin?
@@ -40,7 +40,7 @@
                 %td= q.get(:votes_per_uploaded_choice)["value"].try(:round, 3)
               %td= earl.created_at.to_date
               %td
-                %button.toggle_question_status.btn{:class => earl.active? ? 'btn-primary' : '', :"data-earl_id" => earl.id}
+                %button.toggle_question_status.btn{:class => earl.active? ? 'btn-primary' : '', :"data-question_id" => q.id}
                   = earl.active? ? 'Activated' : 'Deactivated'
       - if current_user.admin? && !current_page?(admin_path(:all => 'true'))
         .row

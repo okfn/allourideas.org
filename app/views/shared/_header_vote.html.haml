@@ -1,9 +1,9 @@
 -@the_id = params[:question_id].nil? ? params[:id] : params[:question_id]
--@cast_votes_url = url_for(:action => :show, :controller => :earls, :id => @the_id)
--@results_url = url_for(:action => :results, :controller => :questions, :id => @the_id)
--@manage_url = url_for(:action => :admin, :controller => :questions, :id => @the_id)
--@all_results_url = url_for(:action => :results, :controller => :questions, :id => @the_id, :more => true)
--@about_url= url_for(:action => :about, :controller => :questions, :id => @the_id)
+-@cast_votes_url = earl_path(@earl)
+-@results_url = results_question_path(@question)
+-@manage_url = admin_question_path(@question)
+-@all_results_url = results_question_path(@question, :more => true)
+-@about_url= about_question_url(@question)
 
 .row
   .span6.survey-image-col
@@ -16,7 +16,7 @@
           = image_tag(@earl.logo.url(@earl.logo_size.to_sym))
       -if (current_user.try(:owns?, @earl) || current_user.try(:admin?)) && local_assigns.has_key?("show_delete")
         .survey-image-links
-          =link_to("<i class='icon-pencil'></i>", url_for(:action => :admin, :controller => :questions, :id => @the_id, :anchor => 'edit-image'), :class => 'btn')
+          =link_to("<i class='icon-pencil'></i>", admin_question_path(@question, :anchor => 'edit-image'), :class => 'btn')
           - if !@earl.logo_file_name.nil?
             =link_to("<i class='icon-trash'></i>", {:action => :delete_logo}, :method => :delete, :class => 'btn')
 .row

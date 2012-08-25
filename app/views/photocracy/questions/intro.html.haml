@@ -7,7 +7,7 @@
   %ol
     %li 
       You can
-      =link_to("further customize your photocracy", url_for(:controller => :questions, :action => :admin, :id => @earl.name))
+      =link_to("further customize your photocracy", admin_question_url(@earl.question_id))
       if you wish 
       %br
       If you don't want to do that now, no problem. When you are logged in, the photocracy customization options are available from the "control panel" link at the very bottom of the page.
@@ -15,9 +15,9 @@
       %br
     %li  
       If you want other people to vote and upload photos you need to send them this link: 
-      = link_to("http://www.photocracy.org/#{@earl.name}", "http://www.photocracy.org/#{@earl.name}") 
+      = link_to(earl_url(@earl), earl_url(@earl))
       %br
       %br
       The only way people will hear about your photocracy is if you tell them. Your photocracy is not in any search engine and we did not create any links that point to it. Other people have had success sharing their photocracy link via email, Facebook, Twitter, and blogs. 
   %br
-  =link_to 'Start voting', url_for(:action => :show, :controller => :earls, :id => params[:id]), :class => 'blue button'
+  =link_to 'Start voting', earl_url(@earl), :class => 'blue button'

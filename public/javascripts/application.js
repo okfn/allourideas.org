@@ -199,9 +199,9 @@ jQuery(document).ready(function() {
 		        opacity:   0.0
 		}});
         // should use .data() when we upgrade jQuery
-		var earl_id = $(ev.target).attr("data-earl_id");
-        var postData  = {authenticity_token: AUTH_TOKEN };
-		$.post('/questions/' + earl_id + '/toggle.js', postData,
+		var question_id = $(ev.target).data("question_id");
+    var postData  = { authenticity_token: AUTH_TOKEN };
+		$.post('/questions/' + question_id + '/toggle.js', postData,
 		    function(data){
 			    $.unblockUI();
                 if(!data['error']) { 
@@ -226,23 +226,24 @@ jQuery(document).ready(function() {
 		        backgroundColor: '#000', 
 		        opacity:         0.0
 		    }});
-        var button = $(ev.target);
-		var choice_id = button.attr("data-choice_id");
-		var earl_id = button.attr("data-earl_id");
-		var state = button.attr("data-status");
+    var button = $(ev.target);
+		var question_id = button.data("question_id");
+		var choice_id = button.data("choice_id");
+		var earl_id = button.data("earl_id");
+		var state = button.data("status");
 		$.post('/questions/' + earl_id + '/choices/' + choice_id + '/toggle.js',
-		{authenticity_token: AUTH_TOKEN },
+		{ earl_id: earl_id, authenticity_token: AUTH_TOKEN },
 		function(data) {
 			$('.indicator').hide();
 			$.unblockUI();
 			//humanMsg.displayMsg(data['message']);
 			if(!data['error']) { 
             if (data['active'] === true) {
-                button.attr("data-status", true);
+                button.data("status", true);
                 button.addClass('btn-primary');
             }
             else if (data['active'] === false) {
-                button.attr("data-status", false);
+                button.data("status", false);
                 button.removeClass('btn-primary');
             }
             button.html(data['verb']);
@@ -263,8 +264,8 @@ jQuery(document).ready(function() {
 		        opacity:         0.0
 		    }});
         var button = $(event.target);
-		var question_id = button.attr("data-question_id");
-		var state = button.attr("data-status");
+		var question_id = button.data("question_id");
+		var state = button.data("status");
 		$.post('/questions/' + question_id + '/toggle_autoactivate.js', {authenticity_token: AUTH_TOKEN }, function(data){
             $('.indicator').hide();
             $.unblockUI();

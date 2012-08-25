@@ -28,15 +28,15 @@ class QuestionsController < ApplicationController
   #   end
   # end
   def results
-    @earl = Earl.find params[:id]
+    @question = Question.find params[:id]
+    @earl = @question.earl
 
-    @question = @earl.question
     @question_id = @question.id
 
     unless (@question.user_can_view_results?(current_user, @earl))
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = t('user.not_authorized_error')
-      redirect_to( "/#{params[:id]}") and return
+      redirect_to(earl_url(@earl)) and return
     end
 
     current_page = params[:page] || 1
@@ -48,11 +48,11 @@ class QuestionsController < ApplicationController
 
     if params[:locale].nil? && @earl.default_lang != I18n.default_locale.to_s
       I18n.locale = @earl.default_lang
-      redirect_to :action => :results, :controller => :questions, :id => @earl.slug.name and return
+      redirect_to results_question_url and return
     end
 
     logger.info "@question is #{@question.inspect}."
-    @partial_results_url = "#{@earl.slug.name}/results"
+    @partial_results_url = results_question_url(@question)
     if params[:all]
       choices = Choice.find(:all, :params => {:question_id => @question_id})
     else
@@ -264,24 +264,24 @@ class QuestionsController < ApplicationController
   end
 
   def admin
-    logger.info "@question = Question.find_by_name(#{params[:id]}) ..."
-    @earl = Earl.find params[:id]
+    logger.info "@question = Question.find_by_name(#{params[:earl_id]}) ..."
+    @question = Question.find params[:id]
+    @earl = @question.earl
 
     unless ((current_user.owns?(@earl)) || current_user.admin?)
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = t('user.not_authorized_error')
-      redirect_to earl_url(@earl) and return
+      redirect_to(earl_url(@earl)) and return
     end
 
-    @question = @earl.question
-    @partial_results_url = results_question_path(@question)
+    @partial_results_url = results_question_url(@question)
 
     @choices = Choice.find(:all, :params => {:question_id => @question.id, :include_inactive => true})
 
   end
 
   def word_cloud
-    @earl = Earl.find params[:id]
+    @earl = Earl.find_by_question_id params[:id]
     type = params[:type]
 
     ignore_word_list = %w( a an as and is or the of for in to with on / - &) 
@@ -344,9 +344,12 @@ class QuestionsController < ApplicationController
     end
   end
 
+
+
   def voter_map
     logger.info "@question = Question.find_by_name(#{params[:id]}) ..."
-    data = Earl.voter_map(params[:id], params[:type])
+    earl = Earl.find_by_question_id(params[:id])
+    data = Earl.voter_map(earl.id, params[:type])
 
     case params[:type]
     when "votes" then
@@ -375,7 +378,7 @@ class QuestionsController < ApplicationController
 
   def scatter_plot_user_vs_seed_ideas
     type = params[:type] # should be scatter_ideas
-    @earl = Earl.find params[:id]
+    @earl = Earl.find_by_question_id params[:id]
     @choices = Choice.find(:all, :params => {:question_id => @earl.question_id})
 
     seed_data = []
@@ -408,7 +411,7 @@ class QuestionsController < ApplicationController
       end
     end
 
-    choice_url = question_choice_url(@earl, :id => 'fakeid')
+    choice_url = question_choice_url(@earl.question, :id => 'fakeid')
 
     tooltipformatter = "function() {  var splitresult = this.point.name.split('@@@');
                         var name = splitresult[0];
@@ -485,8 +488,8 @@ class QuestionsController < ApplicationController
   end
 
   def scatter_votes_vs_skips
-    @earl = Earl.find params[:id]
-    @question = Question.new(:id => @earl.question_id)
+    @question = Question.find params[:id]
+    @earl = @question.earl
     votes_by_sids = object_info_to_hash(@question.get(:object_info_by_visitor_id, :object_type => 'votes'))
 
     skips_by_sids = object_info_to_hash(@question.get(:object_info_by_visitor_id, :object_type => 'skips'))
@@ -547,7 +550,7 @@ class QuestionsController < ApplicationController
   end
 
   def scatter_score_vs_votes
-    @earl = Earl.find params[:id]
+    @earl = Earl.find_by_question_id params[:id]
     @choices = Choice.find(:all, :params => {:question_id => @earl.question_id})
 
     chart_data = []
@@ -590,8 +593,8 @@ class QuestionsController < ApplicationController
 
   def scatter_votes_by_session
     type = params[:type] 
-    @earl = Earl.find params[:id]
-    @question = Question.new(:id => @earl.question_id)
+    @question = Question.find params[:id]
+    @earl = @question.earl
 
     votes_by_sids = object_info_to_hash(@question.get(:object_info_by_visitor_id, :object_type => 'votes'))
     bounces_by_sids = object_info_to_hash(@question.get(:object_info_by_visitor_id, :object_type => 'bounces'))
@@ -666,13 +669,17 @@ class QuestionsController < ApplicationController
     end
   end
 
+
+
+
+
   def timeline_graph
     totals = params[:totals]
     type = params[:type]
 
     if !totals || totals != "true"
-      @earl = Earl.find params[:id]
-      @question = Question.new(:id => @earl.question_id)
+      @question = Question.find params[:id]
+      @earl = @question.earl
     end
 
     case type
@@ -787,7 +794,7 @@ class QuestionsController < ApplicationController
   end
 
   def density_graph
-    @earl = Earl.find params[:id]
+    @earl = Earl.find_by_question_id params[:id]
     @densities = Density.find(:all, :params=> {:question_id => @earl.question_id})
 
     type = params[:type]
@@ -864,8 +871,8 @@ class QuestionsController < ApplicationController
 
   def choices_by_creation_date
     #authenticate admin only
-    @earl = Earl.find params[:id]
-    @question = Question.new(:id => @earl.question_id)
+    @question = Question.find params[:id]
+    @earl = @question.earl
 
     appearance_count_hash = @question.get(:object_info_totals_by_date, :object_type => 'appearances_by_creation_date')
 
@@ -958,7 +965,7 @@ class QuestionsController < ApplicationController
         :with_visitor_stats => true,
         :visitor_identifier => request.session_options[:id]
       })
-      @earl = Earl.find_by_question_id(params[:id])
+      @earl = @question.earl
 
       if !@photocracy
         ab_test_name = "#{@earl.slug.name}_#{@earl.question_id}_leveling_feedback"
@@ -970,11 +977,10 @@ class QuestionsController < ApplicationController
         :votes => @question.attributes['visitor_votes'].to_i,
         :ideas => @question.attributes['visitor_ideas'].to_i, :ab_test_name => ab_test_name)
 
-        @earl = Earl.find_by_question_id(@question.id)
         if @choice.active?
-          IdeaMailer.delay.deliver_notification_for_active(@earl, @question.name, new_idea_data, @choice.id, @photocracy)
+          IdeaMailer.delay.deliver_notification_for_active(@earl, @question, new_idea_data, @choice.id, @photocracy)
         else
-          IdeaMailer.delay.deliver_notification(@earl, @question.name, new_idea_data, @choice.id, @photocracy)
+          IdeaMailer.delay.deliver_notification(@earl, @question, new_idea_data, @choice.id, @photocracy)
         end
 
         if @photocracy
@@ -993,18 +999,19 @@ class QuestionsController < ApplicationController
 
   def toggle
     expire_page :action => :results
-    @earl = Earl.find(params[:id])
-    unless ((current_user.owns?(@earl)) || current_user.admin? )
+    question = Question.find(params[:id])
+    earl = question.earl
+    unless ((current_user.owns?(earl)) || current_user.admin? )
       render(:json => {:message => "You don't have permission to do that for question #{params[:id]}"}.to_json) and return
     end
-    logger.info "Getting ready to change active status of Question #{params[:id]} to #{!@earl.active?}"
+    logger.info "Getting ready to change active status of Question #{params[:id]} to #{!question.active?}"
 
     respond_to do |format|
       format.xml  {  head :ok }
       format.js  { 
-        @earl.active = !(@earl.active)
-        verb = @earl.active ? t('items.list.activated') : t('items.list.deactivated')
-        if @earl.save!
+        earl.active = !(earl.active)
+        verb = earl.active ? t('items.list.activated') : t('items.list.deactivated')
+        if earl.save!
           logger.info "just #{verb} question"
           render :json => {:message => "You've just #{verb.downcase} your question", :verb => verb}.to_json
         else
@@ -1015,8 +1022,8 @@ class QuestionsController < ApplicationController
   end
 
   def toggle_autoactivate
-    @earl = Earl.find_by_question_id(params[:id])
-    @question = @earl.question
+    @question = Question.find params[:id]
+    @earl = @question.earl
     unless ((current_user.owns?(@earl)) || current_user.admin?)
       render(:json => {:error => "You do not have access to this question."}.to_json) and return
     end
@@ -1066,12 +1073,12 @@ class QuestionsController < ApplicationController
     @question = build_question_for(@earl)
 
     if @earl.save
-      ClearanceMailer.delay.deliver_confirmation(current_user, @earl, @photocracy)
+      ClearanceMailer.delay.deliver_confirmation(current_user, @question, @photocracy)
       IdeaMailer.delay.deliver_extra_information(current_user, @question.name, params[:question]['information'], @photocracy) unless params[:question]["information"].blank?
-      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{earl_url(@earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_url(@earl)}\"> #{t('nav.manage_question')}</a>"
+      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{earl_url(@earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_url(@question)}\"> #{t('nav.manage_question')}</a>"
 
       if @photocracy
-        redirect_to add_photos_url(@earl) and return
+        redirect_to add_photos_url(@question) and return
       else
         redirect_to earl_url(@earl, :just_created => true) and return
       end
@@ -1081,10 +1088,9 @@ class QuestionsController < ApplicationController
   end
 
   def update_name
-    @earl = Earl.find params[:id]
-    @question = @earl.question
+    @question = Question.find params[:id]
     respond_to do |format|
-      if ((@question.votes_count == 0 && current_user.owns?(@earl)) || current_user.admin?)
+      if ((@question.votes_count == 0 && current_user.owns?(@question.earl)) || current_user.admin?)
         if params[:question][:name]
           @question.name = params[:question][:name]
           if @question.save
@@ -1102,8 +1108,8 @@ class QuestionsController < ApplicationController
   # # PUT /questions/1
   # # PUT /questions/1.xml
   def update
-    @earl = Earl.find params[:id]
-    @question = @earl.question
+    @question = Question.find params[:id]
+    @earl = @question.earl
 
     unless ( (current_user.owns? @earl) || current_user.admin?)
       flash[:notice] = "You are not authorized to view that page"
@@ -1112,30 +1118,33 @@ class QuestionsController < ApplicationController
 
 
     respond_to do |format|
-      if @earl.update_attributes!(params[:earl].slice(:pass, :logo, :welcome_message, :default_lang, :flag_enabled, :ga_code))
+      earl_update_successful = @earl.update_attributes(params[:earl].slice(:pass, :logo, :welcome_message, :default_lang, :flag_enabled, :ga_code))
+      @question.it_should_autoactivate_ideas = params[:question][:it_should_autoactivate_ideas] if params[:question]
+
+      if earl_update_successful && @question.save
         logger.info("Saving new information on earl")
         flash[:notice] = 'Question settings saved successfully!'
         logger.info("Saved new information on earl")
-        format.html {redirect_to admin_question_url(@question) and return }
+        format.html {redirect_to(admin_question_url(@question)) and return }
         # format.xml  { head :ok }
       else 
-        @partial_results_url = results_question_path(@question)
+        @partial_results_url = results_question_url(@question)
         @choices = Choice.find(:all, :params => {:question_id => @question.id, :include_inactive => true})
 
-        format.html { render :action => 'admin'}
+        format.html {redirect_to(admin_question_url(@question))}
         #format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
       end
     end
   end
   def delete_logo
-    @earl = Earl.find params[:id]
+    @question = Question.find params[:id]
+    @earl = @question.earl
 
     unless ((current_user.owns?(@earl)) || current_user.admin? )
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = "You are not authorized to view that page"
-      redirect_to( "/#{params[:id]}") and return
+      redirect_to earl_url(@earl) and return
     end
-    @question = @earl.question
 
     @earl.logo = nil
     respond_to do |format|
@@ -1143,7 +1152,7 @@ class QuestionsController < ApplicationController
 
         logger.info("Deleting Logo from earl")
         flash[:notice] = 'Question settings saved successfully!'
-        format.html {redirect_to admin_question_url and return }
+        format.html {redirect_to admin_question_url(@question) and return }
         # format.xml  { head :ok }
       else 
         format.html { render :action => "admin"}
@@ -1155,7 +1164,8 @@ class QuestionsController < ApplicationController
 
   def export
     type = params[:type]
-    @earl = Earl.find params[:id]
+    question = Question.find params[:id]
+    @earl = question.earl
     unless ((current_user.owns?(@earl)) || current_user.admin? )
       response = "You are not authorized to export data from this idea marketplace, please contact us at info@allouridea.org if you think this is a mistake"
       render :text => response and return
@@ -1168,8 +1178,6 @@ class QuestionsController < ApplicationController
     if type.nil?
       render :text => "An error has occured! Please try again later." and return
     else
-      question = @earl.question
-
       redis_key  = "export_#{question.id}_#{type}_#{Time.now.to_i}"
       redis_key += "_#{Digest::SHA1.hexdigest(redis_key + rand(10000000).to_s)}"
 
@@ -1190,23 +1198,23 @@ class QuestionsController < ApplicationController
   end
 
   def about
-    @earl = Earl.find_by_name!(params[:id])
-    @question = @earl.question
+    @question = Question.find params[:id]
+    @earl = @question.earl
   end
 
   def add_photos
-    @earl = Earl.find(params[:id])
-    @question = @earl.question
+    @question = Question.find params[:id]
+    @earl = @question.earl
   end
 
   def intro
-    @earl = Earl.find(params[:id])
+    @earl = Earl.find_by_question_id(params[:id])
   end
 
   # necessary because the flash isn't sending AUTH_TOKEN correctly for some reason
   protect_from_forgery :except => [:upload_photos]
   def upload_photos
-    @earl = Earl.find_by_name!(params[:id])
+    @earl = Earl.find_by_question_id(params[:id])
 
     new_photo = Photo.create(:image => params[:Filedata], :original_file_name => params[:Filedata].original_filename)
     if new_photo.valid?
@@ -1250,7 +1258,7 @@ class QuestionsController < ApplicationController
   end
 
   def find_or_build_earl
-    return current_user.earls.find(params[:earl][:earl_id]) if params[:earl]
+    return current_user.earls.find(params[:earl][:earl_id]) if params[:earl] && params[:earl][:earl_id]
     earl_options = {}
     earl_options[:name] = params[:question][:url].strip if params[:question][:url]
     earl_options.merge!(:flag_enabled => true, :photocracy => true) if @photocracy # flag is enabled by default for photocracy

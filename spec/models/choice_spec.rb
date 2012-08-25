@@ -15,7 +15,8 @@ describe Choice do
     choice = Choice.new(:id => 5, :question_id => 1)
     related_choice = Choice.new(:id => 42, :question_id => 1)
 
-    choice.related_choice = related_choice
+    choice.stub!(:choice_belongs_to_the_same_question?).with(related_choice.id).and_return(true)
+    choice.related_choice_id = related_choice.id
 
     ChoiceChoice.find_by_choice_id(choice.id).related_choice_id == related_choice.id
   end
@@ -24,7 +25,7 @@ describe Choice do
     choice = Choice.new(:id => 5, :question_id => 1)
     related_choice = Choice.new(:id => 42, :question_id => 100)
 
-    choice.related_choice = related_choice
+    choice.related_choice_id = related_choice.id
 
     ChoiceChoice.find_by_choice_id(choice.id).should be_nil
   end
@@ -32,7 +33,7 @@ describe Choice do
   it "clears the association with its related choice if passed nil" do
     choice = Choice.new(:id => 5, :question_id => 1)
 
-    choice.related_choice = nil
+    choice.related_choice_id = nil
 
     ChoiceChoice.find_by_choice_id(choice.id).related_choice_id.should be_nil
   end
