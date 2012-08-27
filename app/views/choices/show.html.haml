@@ -19,6 +19,14 @@
       %tr
         %td= t('items.number_of_votes')
         %td#num_votes= @num_votes
+  %table.full.item
+    %tr.row0
+      %th{:colspan => 3}= t('items.history')
+    - for choice in @choice.versions
+      %tr
+        %td= choice.version
+        %td{:width=>'80%'}= choice.data
+        %td= choice.created_at.getlocal.strftime("%m/%d/%Y")
       
 #explanation{:style => 'display:none;'}
   %h2= t('items.about_scoring')

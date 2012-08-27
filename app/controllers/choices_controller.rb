@@ -12,7 +12,7 @@ class ChoicesController < ApplicationController
 	      redirect_to :action => :show, :controller => :choices, 
 		      :question_id => params[:question_id], :id => params[:id]  and return
     end
-    @choice = Choice.find(params[:id], :params => {:question_id => @question.id})
+    @choice = Choice.find(params[:id], :params => {:question_id => @question.id, :version => 'all'})
     @num_votes = @choice.wins + @choice.losses
 
     if @photocracy

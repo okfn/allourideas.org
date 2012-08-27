@@ -36,4 +36,17 @@ describe ChoicesController do
     end
   end
 
+  describe "GET show" do
+    it "loads the choice with all versions" do
+      question = double("question", :id => 42).as_null_object
+      Question.stub!(:find).and_return(question)
+      mock_choice = double("choice").as_null_object
+
+      expected_params = [:choice_id, {:params => {:question_id => question.id, :version => 'all'}}]
+      Choice.should_receive(:find).with(*expected_params).and_return(mock_choice)
+
+      get :show, :id => :choice_id, :question_id => question.id, :locale => 'en'
+    end
+  end
+
 end
