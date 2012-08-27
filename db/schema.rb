@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110304211014) do
+ActiveRecord::Schema.define(:version => 20120827195143) do
 
   create_table "alternatives", :force => true do |t|
     t.integer "experiment_id"
@@ -22,6 +22,15 @@ ActiveRecord::Schema.define(:version => 20110304211014) do
 
   add_index "alternatives", ["experiment_id"], :name => "index_alternatives_on_experiment_id"
   add_index "alternatives", ["lookup"], :name => "index_alternatives_on_lookup"
+
+  create_table "choice_choices", :force => true do |t|
+    t.integer "choice_id",         :null => false
+    t.integer "related_choice_id"
+  end
+
+  add_index "choice_choices", ["choice_id", "related_choice_id"], :name => "index_choice_choices_on_choice_id_and_related_choice_id", :unique => true
+  add_index "choice_choices", ["choice_id"], :name => "index_choice_choices_on_choice_id", :unique => true
+  add_index "choice_choices", ["related_choice_id"], :name => "index_choice_choices_on_related_choice_id"
 
   create_table "clicks", :force => true do |t|
     t.integer  "user_id"
@@ -67,8 +76,8 @@ ActiveRecord::Schema.define(:version => 20110304211014) do
     t.string   "default_lang",                     :default => "en"
     t.string   "logo_size",                        :default => "medium"
     t.boolean  "flag_enabled",                     :default => false
-    t.string   "ga_code"
     t.boolean  "photocracy",                       :default => false
+    t.string   "ga_code"
   end
 
   add_index "earls", ["question_id"], :name => "index_earls_on_question_id"

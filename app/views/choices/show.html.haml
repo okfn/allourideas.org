@@ -19,6 +19,11 @@
       %tr
         %td= t('items.number_of_votes')
         %td#num_votes= @num_votes
+      %tr
+        %td= t('items.related_choice')
+        %td= select 'choice_choice', 'related_choice_id', @choices.collect { |q| [q.data, q.id] }, :selected => @choice.related_choice_id, :include_blank => true
+      %tr
+        %td= submit_tag t('form.save'), :class => 'form-btn'
   %table.full.item
     %tr.row0
       %th{:colspan => 3}= t('items.history')

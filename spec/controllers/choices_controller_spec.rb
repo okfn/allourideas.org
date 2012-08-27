@@ -2,6 +2,11 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe ChoicesController do
 
+  def mock_choice(attributes={})
+    default_attributes = {:id => 42}.merge(attributes)
+    double("choice", default_attributes).as_null_object
+  end
+
   describe "PUT update" do
     it "should deny access if the user is not authorized" do
       controller.class.send(:alias_method, :deny_access_original, :deny_access)
@@ -40,12 +45,26 @@ describe ChoicesController do
     it "loads the choice with all versions" do
       question = double("question", :id => 42).as_null_object
       Question.stub!(:find).and_return(question)
-      mock_choice = double("choice").as_null_object
 
-      expected_params = [:choice_id, {:params => {:question_id => question.id, :version => 'all'}}]
+      expected_params = [:choice_id, {:params => hash_including({:version => 'all'})}]
       Choice.should_receive(:find).with(*expected_params).and_return(mock_choice)
+      Choice.stub!(:find).and_return([mock_choice])
 
       get :show, :id => :choice_id, :question_id => question.id, :locale => 'en'
+    end
+
+    it "assigns all question's choices but the current one to choices" do
+      question = double("question", :id => 42).as_null_object
+      Question.stub!(:find).and_return(question)
+      choice = mock_choice(:id => 1)
+      other_choice = mock_choice(:id => 2)
+
+      expected_params = [:choice_id, {:params => hash_including({:version => 'all'})}]
+      Choice.should_receive(:find).with(*expected_params).and_return(choice)
+      Choice.stub!(:find).and_return([choice, other_choice])
+
+      get :show, :id => :choice_id, :question_id => question.id, :locale => 'en'
+      assigns[:choices].should_not include(choice)
     end
   end
 

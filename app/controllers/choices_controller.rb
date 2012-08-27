@@ -13,6 +13,8 @@ class ChoicesController < ApplicationController
 		      :question_id => params[:question_id], :id => params[:id]  and return
     end
     @choice = Choice.find(params[:id], :params => {:question_id => @question.id, :version => 'all'})
+    @choices = Choice.find(:all, :params => {:question_id => @question.id, :include_inactive => true})
+    @choices.reject! { |choice| choice.id == @choice.id }
     @num_votes = @choice.wins + @choice.losses
 
     if @photocracy
@@ -63,8 +65,12 @@ class ChoicesController < ApplicationController
 
     if params[:choice] && params[:choice][:data]
       choice.data = params[:choice][:data]
-      choice.save
     end
+    if params[:choice_choice] && params[:choice_choice][:related_choice_id]
+      related_choice_id = params[:choice_choice][:related_choice_id]
+      choice.related_choice = Choice.find(related_choice_id, :params => {:question_id => params[:question_id]}) rescue nil
+    end
+    choice.save
 
     redirect_to admin_question_url(params[:question_id])
   end

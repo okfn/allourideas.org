@@ -36,4 +36,24 @@ class Choice < ActiveResource::Base
   def user_created
 	  attributes['user_created']
   end
+
+  def related_choice
+    Choice.find(related_choice_id, :params => { :question_id => question_id }) if related_choice_id
+  end
+
+  def related_choice_id
+    ChoiceChoice.find_by_choice_id(id).related_choice_id rescue nil
+  end
+
+  def related_choice=(choice)
+    choice_choice.update_attributes!(:related_choice_id => nil) and return unless choice
+    return if choice.question_id != question_id
+    choice_choice.update_attributes!(:related_choice_id => choice.id)
+    choice
+  end
+
+  private
+  def choice_choice
+    ChoiceChoice.find_or_create_by_choice_id(id)
+  end
 end
