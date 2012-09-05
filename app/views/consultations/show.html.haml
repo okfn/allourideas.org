@@ -15,8 +15,8 @@
         -for earl in @consultation.earls
           %tr
             %td.title= link_to h(truncate(earl.name, :length => 140, :omission => '…')), admin_question_url(earl.question_id), :id => earl.id
-            %td.votes{:id => "earl_#{earl.id}_status"}
-              %button.toggle_earl_status.btn{:class => earl.active? ? 'btn-primary' : '', :"data-earl_id" => earl.id, :"data-status" => "#{earl.active?}"}
+            %td.votes{:id => "question_#{earl.question_id}_status"}
+              %button.toggle_question_status.btn{:class => earl.active? ? 'btn-primary' : '', :"data-question_id" => earl.question_id, :"data-status" => "#{earl.active?}"}
                 = earl.active? ? 'Activated' : 'Deactivated'
 
   #cant-edit-consultation.modal.hide.fade
@@ -36,3 +36,11 @@
     .modal-footer
       %button.btn{:"data-dismiss" => "modal"} Cancel
       %button.btn.btn-primary.new_idea_submit#edit_consultation_submit{:rel => @consultation.id}= t('vote.submit')
+
+-content_for :head do
+  = javascript_include_tag 'jquery.tablesorter.min.js', 'jquery.blockUI.js'
+
+- content_for :view_javascript do
+  $('.tablesorter').tablesorter({ textExtraction : 'complex', headers: { 0: {sorter: 'text'}, 1 : { sorter: 'digit' } , 2 : { sorter: 'text' }, 3 : { sorter: 'text'}, 4 : { sorter: false }, } });
+  $('input.widget-embed-code').focus(function(ev) { $(this).select(); ev.preventDefault();});
+

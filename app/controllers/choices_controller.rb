@@ -108,7 +108,7 @@ class ChoicesController < ApplicationController
        else
          flash[:notice] = "There was an error, could not save choice settings"
        end
-       format.html {redirect_to earl_url(@earl) and return}
+       format.html {redirect_to consultation_earl_url(@earl.consultation, @earl) and return}
     end
 
   end

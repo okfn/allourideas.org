@@ -230,8 +230,8 @@ class EarlsController < ApplicationController
   protected
 
   def dumb_cleartext_authentication
-    @earl = Earl.find_by_name(params[:id])
-    redirect_to('/') and return unless @earl
+    @earl = Earl.find(params[:id], :scope => params[:consultation_id])
+    redirect_to(root_url) and return unless @earl
     unless @earl.pass.blank?
       authenticate_or_request_with_http_basic(t('questions.owner_password_exp')) do |user_name, password|
         (user_name == @earl.name) && (password == @earl.pass)

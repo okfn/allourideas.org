@@ -1,6 +1,6 @@
 <p>Hi,</p>
 
-<p>This email confirms your recent activity on http://www.<%= @photocracy ? 'photocracy' : 'allourideas' %>.org. Here's the website you created: <%= "http://#{@photocracy ? PHOTOCRACY_HOST : HOST}#{earl_path(@question.earl)}" %></p>
+<p>This email confirms your recent activity on http://www.<%= @photocracy ? 'photocracy' : 'allourideas' %>.org. Here's the website you created: <%= "http://#{@photocracy ? PHOTOCRACY_HOST : HOST}#{consultation_earl_path(@question.earl.consultation, @question.earl)}" %></p>
 <%- if @photocracy -%>
 
 <p>The more photos you upload, the better your results.

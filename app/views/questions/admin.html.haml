@@ -11,7 +11,7 @@
         %tr
           %th
             %span.question-name
-              = @question.attributes['name']
+              = @question.name
             - if ((@question.votes_count == 0 && current_user.owns?(@earl)) || current_user.admin?)
               = link_to("<i class='icon-pencil'></i>", '#edit-question', :"data-toggle" => 'modal', :class => 'btn')
             - else
@@ -128,10 +128,10 @@
     .modal-body
       - form_tag update_name_question_path(@question), :method => :put do |f|
         %p
-          =t('questions.your_current_question_text', :question_text => h(@question.name), :"1" => '<span class="question-name">', :"_1" => '</span>')
+          =t('questions.your_current_question_text', :question_text => h(@earl.name), :"1" => '<span class="question-name">', :"_1" => '</span>')
         %p 
           =t('questions.type_question_prompt')
-        = text_area_tag('question[name]', h(@question.name), :rows => 2, :maxlength => 255, :class => 'new_idea_field input-xxlarge', :id => 'edit_question_text')
+        = text_area_tag('question[name]', h(@earl.name), :rows => 2, :maxlength => 255, :class => 'new_idea_field input-xxlarge', :id => 'edit_question_text')
         %h3.new_idea_counter
     .modal-footer
       %button.btn{:"data-dismiss" => "modal"} Cancel

@@ -169,7 +169,7 @@ describe QuestionsController do
 
       get :admin, :id => earl.question.id
 
-      response.should redirect_to(earl_url(earl))
+      response.should redirect_to(consultation_earl_url(earl.consultation, earl))
       flash[:notice].should_not be_nil
     end
 

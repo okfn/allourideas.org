@@ -36,7 +36,7 @@ class QuestionsController < ApplicationController
     unless (@question.user_can_view_results?(current_user, @earl))
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = t('user.not_authorized_error')
-      redirect_to(earl_url(@earl)) and return
+      redirect_to(consultation_earl_url(@earl.consultation, @earl)) and return
     end
 
     current_page = params[:page] || 1
@@ -271,7 +271,7 @@ class QuestionsController < ApplicationController
     unless ((current_user.owns?(@earl)) || current_user.admin?)
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = t('user.not_authorized_error')
-      redirect_to(earl_url(@earl)) and return
+      redirect_to(consultation_earl_url(@earl.consultation, @earl)) and return
     end
 
     @partial_results_url = results_question_url(@question)
@@ -1075,12 +1075,12 @@ class QuestionsController < ApplicationController
     if @earl.save
       ClearanceMailer.delay.deliver_confirmation(current_user, @question, @photocracy)
       IdeaMailer.delay.deliver_extra_information(current_user, @question.name, params[:question]['information'], @photocracy) unless params[:question]["information"].blank?
-      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{earl_url(@earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_url(@question)}\"> #{t('nav.manage_question')}</a>"
+      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{consultation_earl_url(@earl.consultation, @earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_url(@question)}\"> #{t('nav.manage_question')}</a>"
 
       if @photocracy
         redirect_to add_photos_url(@question) and return
       else
-        redirect_to earl_url(@earl, :just_created => true) and return
+        redirect_to consultation_earl_url(@earl.consultation, @earl, :just_created => true) and return
       end
     else
       render(:action => "new")
@@ -1090,17 +1090,18 @@ class QuestionsController < ApplicationController
   def update_name
     @question = Question.find params[:id]
     respond_to do |format|
-      if ((@question.votes_count == 0 && current_user.owns?(@question.earl)) || current_user.admin?)
+      earl = @question.earl
+      if ((@question.votes_count == 0 && current_user.owns?(earl)) || current_user.admin?)
         if params[:question][:name]
-          @question.name = params[:question][:name]
-          if @question.save
-            format.json { render :json => { :status => 'success', :question => @question}, :status => 200 }
+          earl.name = params[:question][:name]
+          if earl.save
+            format.json { render :json => { :status => 'success', :question => { :name => earl.name }}, :status => 200 }
           else
-            format.json { render :json => { :status => 'failed', :question => @question}, :status => 403 }
+            format.json { render :json => { :status => 'failed', :question => { :name => earl.name }}, :status => 403 }
           end
         end
       else
-        format.json { render :json => { :status => 'failed', :question => @question}, :status => 403 }
+        format.json { render :json => { :status => 'failed', :question => { :name => earl.name }}, :status => 403 }
       end
     end
   end
@@ -1143,7 +1144,7 @@ class QuestionsController < ApplicationController
     unless ((current_user.owns?(@earl)) || current_user.admin? )
       logger.info("Current user is: #{current_user.inspect}")
       flash[:notice] = "You are not authorized to view that page"
-      redirect_to earl_url(@earl) and return
+      redirect_to consultation_earl_url(@earl.consultation, @earl) and return
     end
 
     @earl.logo = nil

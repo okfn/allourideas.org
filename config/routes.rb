@@ -49,8 +49,9 @@ ActionController::Routing::Routes.draw do |map|
 		  }
 	  end
 
-  map.resources :consultations
-  map.resources :earls, :only => [:export_list], :collection => {:export_list=> :get}
+  map.resources :consultations do |consultation|
+    consultation.resources :earls, :only => [:show, :export_list], :collection => {:export_list=> :get}, :as => 'category'
+  end
   map.resources :clicks, :collection => {:export=> :get}
   #map.connect '/questions/:question_id/choices/:id', :controller => 'choices', :action => 'show'
   map.toggle_choice_status '/questions/:earl_id/choices/:id/toggle.:format', :controller => 'choices', :action => 'toggle', :conditions => { :method => :post }
@@ -73,7 +74,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/prompts/load_wikipedia_marketplace', :controller => 'prompts', :action => 'load_wikipedia_marketplace'
   map.connect '/wikipedia-banner-challenge/gallery', :controller => 'home', :action => 'wikipedia_banner_challenge_gallery'
 
-  map.earl '/:id', :controller => 'earls', :action => 'show'
   map.add_photos '/:id/addphotos', :controller => 'questions', :action => 'add_photos'
   map.connect '/:id/:action', :controller => 'questions'
   # rake routes

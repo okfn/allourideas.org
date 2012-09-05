@@ -5,10 +5,6 @@ class Question < ActiveResource::Base
 
   attr_accessor :question_text, :ideas, :url, :information, :email, :password
   
-  def self.find_id_by_slug(slug)
-    Earl.find(slug).question_id rescue nil
-  end
-  
   def earl
     Earl.find_by_question_id(id) rescue nil
   end
@@ -25,7 +21,11 @@ class Question < ActiveResource::Base
     earl.slug.name if earl
   end
  
-  %w(name url the_name ideas).each do |attr|
+  def name
+    attributes['name'] || earl.name
+  end
+
+  %w(url the_name ideas).each do |attr|
     define_method attr do
       attributes[attr]
     end

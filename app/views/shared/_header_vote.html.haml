@@ -1,5 +1,5 @@
 -@the_id = params[:question_id].nil? ? params[:id] : params[:question_id]
--@cast_votes_url = earl_path(@earl)
+-@cast_votes_url = consultation_earl_path(@earl.consultation, @earl)
 -@results_url = results_question_path(@question)
 -@manage_url = admin_question_path(@question)
 -@all_results_url = results_question_path(@question, :more => true)

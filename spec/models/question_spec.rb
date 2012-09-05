@@ -35,13 +35,6 @@ describe Question do
     end
   end
 
-  describe "find_id_by_slug" do
-    it "returns Earl's question id" do
-      earl = Factory(:earl)
-      Question.find_id_by_slug(earl.slug.name).should == earl.question.id
-    end
-  end
-
   describe "earl" do
     it "should return the question's Earl" do
       earl = Factory(:earl)
@@ -120,6 +113,20 @@ describe Question do
 
     it "should return the choices_count if there's one" do
       Factory.build(:question, :choices_count => 50).choices_count == 50
+    end
+  end
+
+  describe "name" do
+    it "should return name" do
+      question = Factory.build(:question, :name => 'question name')
+      question.stub!(:earl).and_return(mock(:name => 'earl name'))
+      question.name.should == 'question name'
+    end
+
+    it "should return earl's name, if we have no name" do
+      question = Factory.build(:question, :name => nil)
+      question.stub!(:earl).and_return(mock(:name => 'earl name'))
+      question.name.should == 'earl name'
     end
   end
 end

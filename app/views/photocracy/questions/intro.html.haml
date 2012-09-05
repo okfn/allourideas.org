@@ -15,9 +15,9 @@
       %br
     %li  
       If you want other people to vote and upload photos you need to send them this link: 
-      = link_to(earl_url(@earl), earl_url(@earl))
+      = link_to(consultation_earl_url(@earl.consultation, @earl), consultation_earl_url(@earl.consultation, @earl))
       %br
       %br
       The only way people will hear about your photocracy is if you tell them. Your photocracy is not in any search engine and we did not create any links that point to it. Other people have had success sharing their photocracy link via email, Facebook, Twitter, and blogs. 
   %br
-  =link_to 'Start voting', earl_url(@earl), :class => 'blue button'
+  =link_to 'Start voting', consultation_earl_url(@earl.consultation, @earl), :class => 'blue button'

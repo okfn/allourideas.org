@@ -1,14 +1,12 @@
 class Earl < ActiveRecord::Base
-  @@reserved_names = ["questions", "question", 'about', 'privacy', 'tour', 'no_google_tracking', 'admin', 'abingo', 'earls', 'signup', 'sign_in', 'sign_out','clicks', 'fakequestion', 'photocracy', 'fotocracy']
   belongs_to :user
   belongs_to :consultation
   belongs_to :question
-  validates_associated :question
   accepts_nested_attributes_for :question
   validates_presence_of :name, :on => :create, :message => "can't be blank"
-  validates_uniqueness_of :name
+  validates_uniqueness_of :name, :scope => :consultation_id
   validates_length_of :welcome_message, :maximum=>350, :allow_nil => true, :allow_blank => true
-  has_friendly_id :name, :use_slug => true, :reserved => @@reserved_names 
+  has_friendly_id :name, :use_slug => true, :scope => :consultation_id
   has_attached_file :logo, :whiny_thumbnails => true, :styles => { :banner => "450x47>", :medium => "150x150>" }
 
   delegate :votes_count, :to => :question
@@ -17,13 +15,7 @@ class Earl < ActiveRecord::Base
   named_scope :not_photocracy, :conditions => { :photocracy => false }
   named_scope :by_creation_date, :order => "created_at ASC"
 
-  validate :name_cannot_be_reserved
-
   before_create :set_user_to_consultations_user, :update_question_user_if_theres_one
-
-  def self.reserved_names
-    @@reserved_names
-  end
 
   def self.voter_map(earl_slug, type)
     if type == "all"
@@ -132,10 +124,6 @@ class Earl < ActiveRecord::Base
     return if question.nil? || user.nil?
     question.local_identifier = user_id
     question.save!
-  end
-
-  def name_cannot_be_reserved
-    errors.add("URL", "has already been taken (Step 2)") if Earl.reserved_names.include? name
   end
 
 end
