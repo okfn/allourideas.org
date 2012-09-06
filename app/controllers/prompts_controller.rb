@@ -9,10 +9,9 @@ class PromptsController < ApplicationController
     @earl = Earl.find_by_question_id(params[:question_id])
     if params[:direction] &&
        vote = voted_prompt.post(:vote, :question_id => params[:question_id],
-                                       :vote => get_object_request_options(params, :vote),
-                                       :next_prompt => get_next_prompt_options)
+                                       :vote => get_object_request_options(params, :vote))
 
-      render :json => next_prompt(vote.body).to_json
+      render :json => next_prompt.to_json
     else
       render :text => 'Vote unsuccessful.', :status => :unprocessable_entity
     end
@@ -27,10 +26,7 @@ class PromptsController < ApplicationController
     @earl = Earl.find_by_question_id(params[:question_id])
 
     if skip = @prompt.post(:skip, :question_id => question_id,
-                           :skip => get_object_request_options(params, :skip),
-                           :next_prompt => get_next_prompt_options)
-      next_prompt = next_prompt(skip.body)
-      next_prompt[:message] = t('vote.cant_decide_message')
+                           :skip => get_object_request_options(params, :skip))
       render :json => next_prompt.to_json
     else
       render :json => '{"error" : "Skip failed"}'
@@ -62,17 +58,13 @@ class PromptsController < ApplicationController
 
     begin
       skip = @prompt.post(:skip, :question_id => question_id,
-                          :skip => get_object_request_options(params, :skip_after_flag),
-                          :next_prompt => get_next_prompt_options
-                          )
+                          :skip => get_object_request_options(params, :skip_after_flag))
     rescue ActiveResource::ResourceConflict
       skip = nil
       flash[:error] = "You flagged an idea as inappropriate. We have deactivated this idea temporarily and sent a notification to the idea marketplace owner. Currently, this idea marketplace does not have enough active ideas. Please contact the owner of this marketplace to resolve this situation"
     end
 
     if flag_choice_success && skip
-      next_prompt = next_prompt(skip.body)
-      next_prompt[:message] = t('vote.flag_complete_message')
       render :json => next_prompt.to_json
     else
       render :json => {:error => "Flag of choice failed",
@@ -86,63 +78,13 @@ class PromptsController < ApplicationController
   end
 
   private
-  def next_prompt(body)
-    prompt = Crack::XML.parse(body)['prompt']
-
-    result = {
-      :newleft           => CGI::escapeHTML(truncate(prompt['left_choice_text'], :length => 140, :omission => '…')),
-      :newright          => CGI::escapeHTML(truncate(prompt['right_choice_text'], :length => 140, :omission => '…')),
-      :appearance_lookup => prompt['appearance_id'],
-      :prompt_id         => prompt['id'],
-      :leveling_message  => leveling_message_for(prompt),
-    }
-
-    result.merge!(wikipedia_info_for(prompt)) if wikipedia?
-    result.merge!(photocracy_info_for(prompt, params[:question_id])) if @photocracy
-
-    result
+  def next_prompt
+    earl = random_earl
+    { :redirect => consultation_earl_url(earl.consultation, earl) }
   end
 
-  def leveling_message_for(prompt)
-    Visitor.leveling_message(:votes => prompt['visitor_votes'].to_i,
-                             :ideas => prompt['visitor_ideas'].to_i,
-                             :ab_test_name => get_leveling_feedback_abtest_name)
-  end
-
-  def wikipedia_info_for(prompt)
-    # wikipedia ideas are prepended by a 4 character integer
-    # that represents their image id
-    {
-      :left_image_id => CGI::escapeHTML(prompt['left_choice_text'].split('-',2)[0]),
-      :right_image_id => CGI::escapeHTML(prompt['right_choice_text'].split('-',2)[0]),
-      :newleft => CGI::escapeHTML(truncate(prompt['left_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />"),
-      :newright => CGI::escapeHTML(truncate(prompt['right_choice_text'].split('-',2)[1], :length => 140, :omission => '…')).gsub("\n","<br />")
-    }
-  end
-
-  def photocracy_info_for(prompt, question_id)
-    newright_photo     = Photo.find(prompt['right_choice_text'])
-    newleft_photo      = Photo.find(prompt['left_choice_text'])
-    future_left_photo  = Photo.find(prompt['future_left_choice_text_1'])
-    future_right_photo = Photo.find(prompt['future_right_choice_text_1'])
-
-    {
-      :visitor_votes        => prompt['visitor_votes'],
-      :newright_photo       => newright_photo.image.url(:medium),
-      :newright_photo_thumb => newright_photo.image.url(:thumb),
-      :newleft_photo        => newleft_photo.image.url(:medium),
-      :newleft_photo_thumb  => newleft_photo.image.url(:thumb),
-      :future_left_photo    => future_left_photo.image.url(:medium),
-      :future_right_photo   => future_right_photo.image.url(:medium),
-      :newleft_url          => vote_question_prompt_url(question_id, prompt['id'], :direction => :left),
-      :newright_url         => vote_question_prompt_url(question_id, prompt['id'], :direction => :right),
-      :newleft_choice_url   => question_choice_url(question_id, prompt['left_choice_id']),
-      :newright_choice_url  => question_choice_url(question_id, prompt['right_choice_id']),
-      :flag_url             => flag_question_prompt_url(question_id, prompt['id'], :format => :js),
-      :skip_url             => skip_question_prompt_url(question_id, prompt['id'], :format => :js),
-      :voted_at             => Time.now.getutc.iso8601,
-      :voted_prompt_winner  => params[:direction]
-    }
+  def random_earl
+    @earl.consultation.earls.active.choice
   end
 
   def get_object_request_options(params, request_type)
@@ -168,18 +110,5 @@ class PromptsController < ApplicationController
         options.merge!({:force_invalid_vote => true})
       end
      options
-  end
-
-  def get_next_prompt_options
-    next_prompt_params = { :with_appearance => true,
-                            :with_visitor_stats => true,
-                            :visitor_identifier => request.session_options[:id]
-                          }
-    next_prompt_params.merge!(:future_prompts => {:number => 1}) if @photocracy
-    next_prompt_params
-  end
-      
-  def get_leveling_feedback_abtest_name
-    "#{@earl.slug.name}_#{@earl.question_id}_leveling_feedback_with_5_treatments" if !@photocracy
   end
 end

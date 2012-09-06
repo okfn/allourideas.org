@@ -5,19 +5,7 @@ shared_examples_for "returns next prompt" do
     @earl = Factory(:earl)
     mock_prompt = double('prompt').as_null_object
     Prompt.stub!(:find).and_return(mock_prompt)
-    next_prompt = { 'left_choice_text' => 'left-choice-text',
-                    'right_choice_text' => 'right-choice-text',
-                    'appearance_id' => 'appearance_id',
-                    'id' => 'prompt_id',
-                    'visitor_votes' => 5,
-                    'visitor_ideas' => 10 }
-    Crack::XML.stub!(:parse).with(mock_prompt).and_return({'prompt' => next_prompt})
-    @expected_response = { 'newleft' => 'left-choice-text',
-                           'leveling_message' => 'Now you have cast 5 votes and added 10 ideas: fantastic',
-                           'appearance_lookup' => 'appearance_id',
-                           'newright' => 'right-choice-text',
-                           'prompt_id' => 'prompt_id' }
-    @expected_response['message'] = @message if @message
+    @expected_response = { 'redirect' => consultation_earl_url(@earl.consultation, @earl) }
   end
 
   it "should return the expected response as json" do
@@ -34,12 +22,7 @@ shared_examples_for "returns next prompt" do
                 :id => 1,
                 :direction => 'left'
 
-    wikipedia = { 'left_image_id' => 'left',
-                  'right_image_id' => 'right',
-                  'newleft' => 'choice-text',
-                  'newright' => 'choice-text' }
-
-    JSON.parse(response.body).should == @expected_response.merge(wikipedia)
+    JSON.parse(response.body).should == @expected_response
   end
 end
 

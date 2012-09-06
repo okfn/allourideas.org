@@ -14,6 +14,7 @@ class Earl < ActiveRecord::Base
   named_scope :photocracy, :conditions => { :photocracy => true }
   named_scope :not_photocracy, :conditions => { :photocracy => false }
   named_scope :by_creation_date, :order => "created_at ASC"
+  named_scope :active, :conditions => { :active => true }
 
   before_create :set_user_to_consultations_user, :update_question_user_if_theres_one
 
