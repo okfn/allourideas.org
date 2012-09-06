@@ -129,4 +129,14 @@ describe Question do
       question.name.should == 'earl name'
     end
   end
+
+  it "should delegate consultation to its earl" do
+    question = Factory.build(:question)
+    earl = mock
+    question.stub!(:earl).and_return(earl)
+
+    earl.should_receive(:consultation)
+
+    question.consultation
+  end
 end
