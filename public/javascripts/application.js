@@ -295,6 +295,33 @@ jQuery(document).ready(function() {
 		return false;
 	});
 	
+	$('.toggle_consultation_status').bind('click',function(ev){
+		$.blockUI({ message: null, fadeIn: 0, fadeOut:  0, overlayCSS:  {
+		        backgroundColor: '#000',
+		        opacity:   0.0
+		}});
+        // should use .data() when we upgrade jQuery
+		var consultation_id = $(ev.target).data("consultation_id");
+    var postData  = { authenticity_token: AUTH_TOKEN };
+		$.post('/consultations/' + consultation_id + '/toggle.js', postData,
+		    function(data){
+			    $.unblockUI();
+                if(!data['error']) {
+                    $(ev.target).html(data['verb']);
+
+                    if (data['verb'] == "Activated") {
+                        $(ev.target).addClass('btn-primary');
+                    }
+                    else {
+                        $(ev.target).removeClass('btn-primary');
+                    }
+                }
+            },
+		    "json"
+		);
+		return false;
+	});
+
 	$('input[title!=""]').hint();
 	$('textarea[title!=""]').hint();
 	

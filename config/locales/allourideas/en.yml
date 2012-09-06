@@ -345,6 +345,7 @@ en:
         first_time: First time here? Click on the choice you like more to start voting!
         no_first_time: Click on the choice you like more to start voting!
   consultations:
+    consultations: Consultations
     new_consultation: New Consultation
     edit_consultation: Edit Consultation
     cant_edit_consultation: We are sorry, but you cannot edit the consultation text once voting has started. If you want to change the consultation text at this point you need to create a new one.

@@ -1,6 +1,11 @@
 class ConsultationsController < ApplicationController
   before_filter :authenticate, :except => [:show, :new, :create]
 
+  def index
+    @consultations = current_user.consultations
+    redirect_to new_consultation_url if @consultations.empty?
+  end
+
   def show
     consultation = Consultation.find(params[:id])
     random_earl = consultation.earls.active.choice
@@ -57,6 +62,22 @@ class ConsultationsController < ApplicationController
       redirect_to admin_consultation_url(@consultation)
     else
       render :admin
+    end
+  end
+
+  def toggle
+    consultation = current_user.consultations.find(params[:id])
+
+    respond_to do |format|
+      format.js  {
+        consultation.active = !(consultation.active)
+        verb = consultation.active ? t('items.list.activated') : t('items.list.deactivated')
+        if consultation.save!
+          render :json => {:message => "You've just #{verb.downcase} your consultation", :verb => verb}.to_json
+        else
+          render :json => {:message => "You've just #{verb.downcase} your consultation", :verb => verb}.to_json
+        end
+      }
     end
   end
 

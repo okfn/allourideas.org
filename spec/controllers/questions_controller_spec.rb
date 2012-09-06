@@ -177,7 +177,8 @@ describe QuestionsController do
 
   describe "POST toggle" do
     it "should deactivate the earl, if the question was active" do
-      earl = Factory(:earl, :active => true)
+      consultation = Factory.build(:consultation_without_earls, :active => true)
+      earl = Factory(:earl, :consultation => consultation, :active => true)
       sign_in_as earl.user
       post :toggle, :format => 'js', :id => earl.question_id
 
@@ -186,7 +187,8 @@ describe QuestionsController do
     end
 
     it "should activate the earl, if it was inactive" do
-      earl = Factory(:earl, :active => false)
+      consultation = Factory.build(:consultation_without_earls, :active => true)
+      earl = Factory(:earl, :consultation => consultation, :active => false)
       sign_in_as earl.user
       post :toggle, :format => 'js', :id => earl.question_id
 

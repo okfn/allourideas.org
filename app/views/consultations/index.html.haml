@@ -1,0 +1,28 @@
+.row
+  .span12
+    -if @consultations.length > 0
+      %table.table.table-bordered.table-striped.table-condensed{:class => "tablesorter"}
+        %thead
+          %tr
+            %th
+              = t('consultations.consultations')
+              = link_to("<i class='icon-plus'></i>", new_consultation_path, :class => 'btn')
+            %th= t('admin.num_votes')
+            %th= t('admin.created')
+            %th= "Status"
+        %tbody
+          -for consultation in @consultations
+            %tr
+              %td.title= link_to h(truncate(consultation.name, :length => 140, :omission => '…')), admin_consultation_path(consultation)
+              %td= consultation.votes_count
+              %td= consultation.created_at.to_date
+              %td
+                %button.toggle_consultation_status.btn{:class => consultation.active? ? 'btn-primary' : '', :"data-consultation_id" => consultation.id}
+                  = consultation.active? ? 'Activated' : 'Deactivated'
+
+-content_for :head do
+  = javascript_include_tag 'jquery.tablesorter.min.js', 'jquery.blockUI.js'
+- content_for :view_javascript do
+  $('.tablesorter').tablesorter({ textExtraction : 'complex', headers: { 0: {sorter: 'text'}, 1 : { sorter: 'digit' } , 2 : { sorter: 'text' }, 3 : { sorter: 'text'}, 4 : { sorter: false }, } });
+  $('input.widget-embed-code').focus(function(ev) { $(this).select(); ev.preventDefault();});
+

@@ -2,6 +2,31 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe ConsultationsController do
 
+  describe "GET index" do
+    it "redirects to sign in page if not signed in" do
+      get :index
+
+      response.should redirect_to(new_session_url)
+    end
+
+    it "assigns the consultation" do
+      consultation = Factory(:consultation)
+      sign_in_as consultation.user
+
+      get :index
+
+      assigns[:consultations].should == [consultation]
+    end
+
+    it "redirects to new consultation page if user has no consultations" do
+      sign_in
+
+      get :index
+
+      response.should redirect_to(new_consultation_url)
+    end
+  end
+
   describe "GET show" do
     it "redirects to root page if consultation has no earls" do
       consultation = Factory(:consultation_without_earls)
@@ -197,6 +222,26 @@ describe ConsultationsController do
 
       earl = @consultation.earls.first
       earl.question.local_identifier.to_i.should == @current_user.id
+    end
+  end
+
+  describe "POST toggle" do
+    it "should deactivate the consultation, if it was active" do
+      consultation = Factory(:consultation, :active => true)
+      sign_in_as consultation.user
+      post :toggle, :format => 'js', :id => consultation.id
+
+      JSON.parse(response.body).should == {"message" => "You've just deactivated your consultation", "verb" => "Deactivated"}
+      consultation.reload.should_not be_active
+    end
+
+    it "should activate the consultation, if it was inactive" do
+      consultation = Factory(:consultation, :active => false)
+      sign_in_as consultation.user
+      post :toggle, :format => 'js', :id => consultation.id
+
+      JSON.parse(response.body).should == {"message" => "You've just activated your consultation", "verb" => "Activated"}
+      consultation.reload.should be_active
     end
   end
 

@@ -115,6 +115,13 @@ class Earl < ActiveRecord::Base
     return {:total => object_total, :votes_by_geoloc => votes_by_geoloc }
   end
 
+  def active?
+    consultation_active = true
+    consultation_active = consultation.active if consultation
+    super && consultation_active
+  end
+  alias :active :active?
+
   private
 
   def set_user_to_consultations_user

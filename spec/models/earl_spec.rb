@@ -59,4 +59,33 @@ describe Earl do
     end
   end
 
+  describe "active" do
+    it "should be true if it's active and its consultation is active" do
+      consultation = Factory(:consultation_without_earls, :active => true)
+      earl = Factory(:earl, :active => true, :consultation => consultation)
+
+      earl.should be_active
+    end
+
+    it "should be false if its consultation is inactive" do
+      consultation = Factory(:consultation_without_earls, :active => false)
+      earl = Factory(:earl, :active => true, :consultation => consultation)
+
+      earl.should_not be_active
+    end
+
+    it "should be false if it's inactive and its consultation is active" do
+      consultation = Factory(:consultation_without_earls, :active => true)
+      earl = Factory(:earl, :active => false, :consultation => consultation)
+
+      earl.should_not be_active
+    end
+
+    it "should return its active status, if there's no consultation" do
+      earl = Factory.build(:earl, :active => true, :consultation => nil)
+
+      earl.should be_active
+    end
+  end
+
 end
