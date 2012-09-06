@@ -41,8 +41,7 @@ class ConsultationsController < ApplicationController
   def create_earl
     add_visitor_identifier_to_earls_question_attributes
     @consultation = current_user.consultations.find(params[:id])
-    @earl = Earl.create(params[:earl])
-    @earl.consultation = @consultation
+    @earl = @consultation.earls.build(params[:earl])
 
     if @earl.save
       redirect_to consultation_url(@consultation)

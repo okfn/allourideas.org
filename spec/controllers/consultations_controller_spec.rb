@@ -162,6 +162,7 @@ describe ConsultationsController do
 
       @consultation.earls.should_not be_empty
       @consultation.earls.last.name.should == "Earl"
+      @consultation.earls.last.user_id.should == @current_user.id
     end
 
     it "assigns the request session id as the question's visitor identifier" do
