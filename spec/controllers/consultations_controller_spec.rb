@@ -3,12 +3,35 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe ConsultationsController do
 
   describe "GET show" do
+    it "redirects to root page if consultation has no earls" do
+      consultation = Factory(:consultation_without_earls)
+
+      get :show, :id => consultation.id
+
+      response.should redirect_to(root_url)
+    end
+
+    it "redirects to random earl page if consultation has earls" do
+      consultation = Factory.build(:consultation_without_earls, :id => 42)
+      Consultation.stub!(:find).with(consultation.id.to_s).and_return(consultation)
+      earl = Factory.build(:earl, :id => 51, :consultation => consultation)
+      mock_earls = mock
+      mock_earls.should_receive(:choice).and_return(earl)
+      consultation.earls.stub!(:active).and_return(mock_earls)
+
+      get :show, :id => consultation.id
+
+      response.should redirect_to(consultation_earl_url(consultation, earl))
+    end
+  end
+
+  describe "GET admin" do
     before { sign_in }
 
     it "redirects to login page if we're not logged in" do
       sign_out
 
-      get :show, :id => :consultation_id
+      get :admin, :id => :consultation_id
 
       response.should redirect_to(new_session_url)
     end
@@ -16,7 +39,7 @@ describe ConsultationsController do
     it "assigns the requested consultation" do
       consultation = Factory(:consultation, :user => controller.current_user)
 
-      get :show, :id => consultation.id
+      get :admin, :id => consultation.id
 
       assigns[:consultation].should == consultation
     end
@@ -25,7 +48,7 @@ describe ConsultationsController do
       consultation = Factory(:consultation)
 
       lambda {
-        get :show, :id => consultation.id
+        get :admin, :id => consultation.id
       }.should raise_error(ActiveRecord::RecordNotFound)
 
       assigns[:consultation].should be_nil
@@ -91,7 +114,7 @@ describe ConsultationsController do
     it "redirects to consultation's show page" do
       post :create, :consultation => { :name => "Consultation" }
 
-      response.should redirect_to(consultation_url(assigns[:consultation]))
+      response.should redirect_to(admin_consultation_url(assigns[:consultation]))
     end
 
     it "renders new if couldn't save consultation" do
@@ -148,13 +171,13 @@ describe ConsultationsController do
     it "redirects to consultation url if successful" do
       post :create_earl, :id => @consultation.id, :earl => { :name => "Earl" }
 
-      response.should redirect_to(consultation_url(@consultation))
+      response.should redirect_to(admin_consultation_url(@consultation))
     end
 
     it "renders consultation's show page if unsuccessful" do
       post :create_earl, :id => @consultation.id, :earl => {}
 
-      response.should render_template("consultations/show")
+      response.should render_template("consultations/admin")
     end
 
     it "creates a new earl and assign it to the consultation" do

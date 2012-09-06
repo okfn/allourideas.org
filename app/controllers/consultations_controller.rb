@@ -1,7 +1,17 @@
 class ConsultationsController < ApplicationController
-  before_filter :authenticate, :except => [:new, :create]
+  before_filter :authenticate, :except => [:show, :new, :create]
 
   def show
+    consultation = Consultation.find(params[:id])
+    random_earl = consultation.earls.active.choice
+    if random_earl
+      redirect_to consultation_earl_url(consultation, random_earl)
+    else
+      redirect_to root_url
+    end
+  end
+
+  def admin
     @consultation = current_user.consultations.find(params[:id])
   end
 
@@ -20,7 +30,7 @@ class ConsultationsController < ApplicationController
 
     if @consultation.save
       sign_in(@consultation.user) unless signed_in?
-      redirect_to consultation_url(@consultation)
+      redirect_to admin_consultation_url(@consultation)
     else
       render :new
     end
@@ -44,9 +54,9 @@ class ConsultationsController < ApplicationController
     @earl = @consultation.earls.build(params[:earl])
 
     if @earl.save
-      redirect_to consultation_url(@consultation)
+      redirect_to admin_consultation_url(@consultation)
     else
-      render :show
+      render :admin
     end
   end
 
