@@ -49,7 +49,7 @@ ActionController::Routing::Routes.draw do |map|
 		  }
 	  end
 
-  map.resources :consultations do |consultation|
+  map.resources :consultations, :member => { :create_earl => :post } do |consultation|
     consultation.resources :earls, :only => [:show, :export_list], :collection => {:export_list=> :get}, :as => 'category'
   end
   map.resources :clicks, :collection => {:export=> :get}

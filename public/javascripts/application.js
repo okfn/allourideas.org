@@ -79,6 +79,7 @@ AOI.admin = (function($) {
     that.initialize = function() {
         editQuestion();
         editConsultation();
+        newCategory();
     };
 
     function editQuestion() {
@@ -114,6 +115,13 @@ AOI.admin = (function($) {
                     $('#cant-edit-'+element_name).modal('show');
                 }
             });
+        });
+    }
+
+    function newCategory() {
+        $('#new-category .new_idea_submit').click(function(ev) {
+            var form = $(ev.target).closest('.modal').find('form');
+            form.submit();
         });
     }
 

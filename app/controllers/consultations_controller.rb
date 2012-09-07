@@ -7,8 +7,6 @@ class ConsultationsController < ApplicationController
 
   def new
     @consultation = Consultation.new
-    @consultation.earls.build
-    @consultation.earls.first.question = Question.new
     if signed_in?
       @consultation.user = current_user
     else
@@ -17,8 +15,6 @@ class ConsultationsController < ApplicationController
   end
 
   def create
-    add_visitor_identifier_to_earls_question_attributes if params[:consultation][:earls_attributes]
-
     @consultation = Consultation.new(params[:consultation])
     @consultation.user = current_user if signed_in?
 
@@ -42,12 +38,25 @@ class ConsultationsController < ApplicationController
     end
   end
 
+  def create_earl
+    add_visitor_identifier_to_earls_question_attributes
+    @consultation = current_user.consultations.find(params[:id])
+    @earl = Earl.create(params[:earl])
+    @earl.consultation = @consultation
+
+    if @earl.save
+      redirect_to consultation_url(@consultation)
+    else
+      render :show
+    end
+  end
+
   private
   def add_visitor_identifier_to_earls_question_attributes
-    params[:consultation][:earls_attributes].values.each do |earl|
-      next unless earl[:question_attributes]
-      earl[:question_attributes][:visitor_identifier] = request.session_options[:id]
-    end
+    return unless params[:earl][:question_attributes]
+    identifiers = { :visitor_identifier => request.session_options[:id],
+                    :local_identifier => current_user.id }
+    params[:earl][:question_attributes].merge!(identifiers)
   end
 
 end

@@ -99,18 +99,6 @@ describe ConsultationsController do
 
       response.should render_template("consultations/new")
     end
-
-    it "assigns the request session id as the question's visitor identifier" do
-      question_attributes = { :ideas => "idea" }
-      earl_attributes = { "0" => { :question_attributes => question_attributes } }
-
-      post :create, :consultation => { :name => "Consultation",
-                                       :earls_attributes => earl_attributes }
-
-      consultation = assigns[:consultation]
-      earl = consultation.earls.first
-      earl.question.visitor_identifier.should == request.session_options[:id]
-    end
   end
 
   describe "PUT update" do
@@ -141,6 +129,50 @@ describe ConsultationsController do
                    :consultation => { :name => "" }
 
       response.response_code.should == 403
+    end
+  end
+
+  describe "POST create_earl" do
+    before do
+      @current_user = sign_in
+      @consultation = Factory(:consultation_without_earls, :user => @current_user)
+    end
+
+    it "assigns the consultation and earl" do
+      post :create_earl, :id => @consultation.id, :earl => {}
+
+      assigns[:consultation].should_not be_nil
+      assigns[:earl].should_not be_nil
+    end
+
+    it "redirects to consultation url if successful" do
+      post :create_earl, :id => @consultation.id, :earl => { :name => "Earl" }
+
+      response.should redirect_to(consultation_url(@consultation))
+    end
+
+    it "renders consultation's show page if unsuccessful" do
+      post :create_earl, :id => @consultation.id, :earl => {}
+
+      response.should render_template("consultations/show")
+    end
+
+    it "creates a new earl and assign it to the consultation" do
+      post :create_earl, :id => @consultation.id, :earl => { :name => "Earl" }
+
+      @consultation.earls.should_not be_empty
+      @consultation.earls.last.name.should == "Earl"
+    end
+
+    it "assigns the request session id as the question's visitor identifier" do
+      question_attributes = { :ideas => "idea" }
+      earl_attributes = { :name => "Earl",
+                          :question_attributes => question_attributes }
+
+      post :create_earl, :id => @consultation.id, :earl => earl_attributes
+
+      earl = @consultation.earls.first
+      earl.question.local_identifier.to_i.should == @current_user.id
     end
   end
 

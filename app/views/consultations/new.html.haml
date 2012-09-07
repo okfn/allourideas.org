@@ -17,15 +17,4 @@
         = u.label :password
         = u.password_field :password, :size => 20, :class => 'required'
 
-  %p
-    %h2 Categories
-    -f.fields_for :earls do |e|
-      %p
-        = e.label :name
-        = e.text_field :name
-      -e.fields_for :question do |q|
-        %p
-          = q.label :ideas
-          = q.text_area :ideas, :class => 'required', :cols => 85, :rows => 12
-
   %p= f.submit

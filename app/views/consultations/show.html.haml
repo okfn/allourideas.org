@@ -1,3 +1,5 @@
+%p= error_messages_for :earl, :object_name => :category
+
 .row
   .span12
     #consultation-saved.alert.alert-success.hide
@@ -10,6 +12,7 @@
               = @consultation.name
             - if @consultation.votes_count == 0
               = link_to("<i class='icon-pencil'></i>", '#edit-consultation', :"data-toggle" => 'modal', :class => 'btn')
+            = link_to("<i class='icon-plus'></i>", '#new-category', :"data-toggle" => 'modal', :class => 'btn')
           %th.status= t('items.list.status').titleize
       %tbody 
         -for earl in @consultation.earls
@@ -30,12 +33,28 @@
       %button.close{:"data-dismiss" => 'modal'} x
       %h2= t('consultations.edit_consultation')
     .modal-body
-      - form_tag consultation_path(@consultation), :method => :put do |f|
+      - form_tag consultation_path(@consultation), :method => :put do
         = text_area_tag('consultation[name]', h(@consultation.name), :rows => 2, :maxlength => 255, :class => 'new_idea_field input-xxlarge', :id => 'edit_consultation_text')
         %h3.new_idea_counter
     .modal-footer
       %button.btn{:"data-dismiss" => "modal"} Cancel
       %button.btn.btn-primary.new_idea_submit#edit_consultation_submit{:rel => @consultation.id}= t('vote.submit')
+
+  #new-category.modal.hide.fade
+    .modal-header
+      %button.close{:"data-dismiss" => 'modal'} x
+      %h2= t('consultations.new_category')
+    .modal-body
+      - form_tag create_earl_consultation_path(@consultation) do
+        %p
+          = label_tag :name
+          = text_field_tag 'earl[name]'
+        %p
+          = label_tag :ideas
+          = text_area_tag('earl[question_attributes[ideas]]', '', :class => 'required', :cols => 85, :rows => 12)
+    .modal-footer
+      %button.btn{:"data-dismiss" => "modal"} Cancel
+      %button.btn.btn-primary.new_idea_submit#new_category_submit{:rel => @consultation.id}= t('vote.submit')
 
 -content_for :head do
   = javascript_include_tag 'jquery.tablesorter.min.js', 'jquery.blockUI.js'
