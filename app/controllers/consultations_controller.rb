@@ -81,12 +81,25 @@ class ConsultationsController < ApplicationController
     end
   end
 
+  def results
+    @consultation = Consultation.find(params[:id])
+    redirect_to root_url unless (@consultation.user == current_user) || current_user.admin?
+    @choices = choices_with_earl_sorted_by_score(@consultation.earls)
+  end
+
   private
   def add_visitor_identifier_to_earls_question_attributes
     return unless params[:earl][:question_attributes]
     identifiers = { :visitor_identifier => request.session_options[:id],
                     :local_identifier => current_user.id }
     params[:earl][:question_attributes].merge!(identifiers)
+  end
+
+  def choices_with_earl_sorted_by_score(earls)
+    earls.map do |earl|
+      choices = Choice.find(:all, :params => { :question_id => earl.question_id })
+      choices.map { |c| c.earl = earl; c }
+    end.flatten.sort_by(&:score).reverse
   end
 
 end

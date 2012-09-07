@@ -1,0 +1,30 @@
+= content_for :meta do
+  <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+.tab-content.question-results
+  .row
+    .span10.offset1
+      .results-table-header
+        %h3= @consultation.name
+      %table.table.table-striped.ideas-table
+        %thead
+          %tr
+            %th
+              %h4= t('common.ideas').titleize
+            %th
+              %h4= t('common.category').titleize
+            %th.score
+              %h4
+                = t('common.score').titleize + " (0 - 100)"
+                = link_to('', '#score_explanation', :"data-toggle" => 'modal', :class => 'icon-question-sign')
+            %th &nbsp;
+        %tbody
+          - @choices.each do |choice|
+            %tr
+              %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(choice.question_id, choice), :"data-toggle" => "modal-ajax"
+              %td= link_to choice.earl.name, consultation_earl_path(choice.earl.consultation_id, choice.earl)
+              %td.span4.choice-progress
+                .progress.progress-gray
+                  .bar{:style => "width:#{choice.attributes['score']}%"}
+                .score
+                  %strong= choice.attributes['score'].round.to_s
+

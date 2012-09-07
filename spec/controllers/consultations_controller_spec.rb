@@ -245,4 +245,45 @@ describe ConsultationsController do
     end
   end
 
+  describe "GET results" do
+    it "redirects to if not signed in" do
+      get :results, :id => :consultation_id
+      response.should redirect_to(new_session_url)
+    end
+
+    it "redirects to root if user doesn't owns consultation and isn't admin" do
+      sign_in
+      consultation = Factory(:consultation_without_earls)
+      get :results, :id => consultation.id
+      response.should redirect_to(root_url)
+    end
+
+    it "assigns the consultation if user is its owner" do
+      consultation = Factory(:consultation_without_earls)
+      sign_in_as consultation.user
+      get :results, :id => consultation.id
+      assigns[:consultation].should == consultation
+    end
+
+    it "assigns the consultation if user is admin" do
+      sign_in_as_admin
+      consultation = Factory(:consultation_without_earls)
+      get :results, :id => consultation.id
+      assigns[:consultation].should == consultation
+    end
+
+    it "should assign each earl to its choice, and sort by score" do
+      sign_in_as_admin
+      consultation = Factory(:consultation_without_earls)
+      earl = Factory(:earl, :consultation => consultation)
+      choices = [Choice.new(:score => 100), Choice.new(:score => 200)]
+      Choice.should_receive(:find).with(:all, :params => { :question_id => earl.question_id }).and_return(choices)
+
+      get :results, :id => consultation.id
+
+      choices.each { |choice| choice.attributes['earl'].should == earl }
+      assigns[:choices].map(&:score).should == [200, 100]
+    end
+  end
+
 end
