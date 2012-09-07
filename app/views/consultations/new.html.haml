@@ -1,0 +1,31 @@
+%h1= t('consultations.new_consultation')
+
+-form_for @consultation do |f|
+  %p= f.error_messages
+
+  %p
+    = f.label :name
+    = f.text_field :name
+
+  -unless signed_in?
+    -f.fields_for :user do |u|
+      %h2= t('consultations.user_details')
+      %p
+        = u.label :email
+        = u.text_field :email, :size => 30, :class => 'required email', :maxlength => Const::MAX_QUESTION_LENGTH
+      %p
+        = u.label :password
+        = u.password_field :password, :size => 20, :class => 'required'
+
+  %p
+    %h2 Categories
+    -f.fields_for :earls do |e|
+      %p
+        = e.label :name
+        = e.text_field :name
+      -e.fields_for :question do |q|
+        %p
+          = q.label :ideas
+          = q.text_area :ideas, :class => 'required', :cols => 85, :rows => 12
+
+  %p= f.submit

@@ -78,6 +78,7 @@ AOI.admin = (function($) {
 
     that.initialize = function() {
         editQuestion();
+        editConsultation();
     };
 
     function editQuestion() {
@@ -87,21 +88,30 @@ AOI.admin = (function($) {
         }
 
         // handle submit of edit question form
-        $('#edit-question .new_idea_submit').click(function(ev) {
+        setupSubmitFormFor('question');
+    }
+
+    function editConsultation() {
+        setupSubmitFormFor('consultation');
+    }
+
+    function setupSubmitFormFor(element_name) {
+        // handle submit of edit form
+        $('#edit-'+element_name+' .new_idea_submit').click(function(ev) {
             var form = $(ev.target).closest('.modal').find('form');
             form.ajaxSubmit({
                 dataType : 'json',
                 success : function(rt, st, xhr) {
-
-                    $('#edit-question').modal('hide');
+                    $('#edit-'+element_name).modal('hide');
                     if (rt.status === 'success') {
-                        form.find('textarea').val(rt.question.name);
-                        $('.question-name').text(rt.question.name);
-                        $('#question-saved').show();
+                        form.find('textarea').val(rt[element_name].name);
+                        $('.'+element_name+'-name').text(rt[element_name].name);
+                        $('#'+element_name+'-saved').show();
                     }
-                    else {
-                        $('#cant-edit-question').modal('show');
-                    }
+                },
+                error : function(rt, st, xhr) {
+                    $('#edit-'+element_name).modal('hide');
+                    $('#cant-edit-'+element_name).modal('show');
                 }
             });
         });

@@ -42,7 +42,7 @@ module ApplicationHelper
   # end
   
   def log_or_new_path
-    user_set? ? new_question_path : new_user_path
+    user_set? ? new_consultation_path : new_user_path
   end
 
   def class_for_nav(params, action, controller = 'home')

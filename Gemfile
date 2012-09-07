@@ -45,7 +45,7 @@ group :test do
   gem "sqlite3", ">=1.3.3"
   gem "database_cleaner", "0.5.0"
   gem "capybara", "0.3.7"
-  gem "thoughtbot-factory_girl", "~>1.2.1", :require => "factory_girl"
+  gem "factory_girl", "~>1.3.3"
   gem "thoughtbot-shoulda", "~> 2.10.1", :require => "shoulda"
   gem "timecop", "0.3.5"
   gem "rspec", "1.3.2"

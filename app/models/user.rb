@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   include Clearance::User
+  has_many :consultations
   has_many :earls
   has_many :session_infos
   has_many :clicks

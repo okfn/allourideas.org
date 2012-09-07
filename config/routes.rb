@@ -49,6 +49,7 @@ ActionController::Routing::Routes.draw do |map|
 		  }
 	  end
 
+  map.resources :consultations
   map.resources :earls, :only => [:export_list], :collection => {:export_list=> :get}
   map.resources :clicks, :collection => {:export=> :get}
   #map.connect '/questions/:question_id/choices/:id', :controller => 'choices', :action => 'show'

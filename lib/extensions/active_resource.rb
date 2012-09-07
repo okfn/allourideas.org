@@ -10,6 +10,9 @@ module ActiveResource::BugFixes
 
       # See https://github.com/rails/rails/issues/7378
       define_method(:destroyed?) { false }
+
+      # Needed for accepts_nested_attributes_for with an ActiveResource
+      define_method(:marked_for_destruction?) { false }
     end
   end
 
@@ -26,3 +29,14 @@ module ActiveResource::BugFixes
 end
 
 ActiveResource::Base.send :include, ActiveResource::BugFixes
+
+# ActiveResource::Errors don't defines each_error, but each is the same as
+# ActiveRecord::Errors.each_errors. So we simply alias it here.
+# This is needed for using accepts_nested_attributes_for with ActiveResource.
+#
+# vendor/ruby/1.8/gems/activerecord-2.3.14/lib/active_record/autosave_association.rb:283:in `association_valid?'
+module ActiveResource
+  class Errors
+    alias :each_error :each
+  end
+end

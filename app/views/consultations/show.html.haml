@@ -1,0 +1,38 @@
+.row
+  .span12
+    #consultation-saved.alert.alert-success.hide
+      = t('questions.question_saved')
+    %table.table.table-bordered.table-striped.table-condensed.tablesorter.ideas-table
+      %thead 
+        %tr
+          %th
+            %span.consultation-name
+              = @consultation.name
+            - if @consultation.votes_count == 0
+              = link_to("<i class='icon-pencil'></i>", '#edit-consultation', :"data-toggle" => 'modal', :class => 'btn')
+          %th.status= t('items.list.status').titleize
+      %tbody 
+        -for earl in @consultation.earls
+          %tr
+            %td.title= link_to h(truncate(earl.name, :length => 140, :omission => '…')), admin_question_url(earl.question_id), :id => earl.id
+            %td.votes{:id => "earl_#{earl.id}_status"}
+              %button.toggle_earl_status.btn{:class => earl.active? ? 'btn-primary' : '', :"data-earl_id" => earl.id, :"data-status" => "#{earl.active?}"}
+                = earl.active? ? 'Activated' : 'Deactivated'
+
+  #cant-edit-consultation.modal.hide.fade
+    .modal-body
+      %p= t('consultations.cant_edit_consultation')
+    .modal-footer
+      %button.close{:"data-dismiss" => 'modal'} x
+
+  #edit-consultation.modal.hide.fade
+    .modal-header
+      %button.close{:"data-dismiss" => 'modal'} x
+      %h2= t('consultations.edit_consultation')
+    .modal-body
+      - form_tag consultation_path(@consultation), :method => :put do |f|
+        = text_area_tag('consultation[name]', h(@consultation.name), :rows => 2, :maxlength => 255, :class => 'new_idea_field input-xxlarge', :id => 'edit_consultation_text')
+        %h3.new_idea_counter
+    .modal-footer
+      %button.btn{:"data-dismiss" => "modal"} Cancel
+      %button.btn.btn-primary.new_idea_submit#edit_consultation_submit{:rel => @consultation.id}= t('vote.submit')

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120827195143) do
+ActiveRecord::Schema.define(:version => 20120904134124) do
 
   create_table "alternatives", :force => true do |t|
     t.integer "experiment_id"
@@ -45,6 +45,14 @@ ActiveRecord::Schema.define(:version => 20120827195143) do
 
   add_index "clicks", ["session_info_id"], :name => "index_clicks_on_session_info_id"
 
+  create_table "consultations", :force => true do |t|
+    t.string   "name",                          :null => false
+    t.boolean  "active",     :default => false, :null => false
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
     t.integer  "attempts",   :default => 0
@@ -78,8 +86,10 @@ ActiveRecord::Schema.define(:version => 20120827195143) do
     t.boolean  "flag_enabled",                     :default => false
     t.boolean  "photocracy",                       :default => false
     t.string   "ga_code"
+    t.integer  "consultation_id"
   end
 
+  add_index "earls", ["consultation_id"], :name => "index_earls_on_consultation_id"
   add_index "earls", ["question_id"], :name => "index_earls_on_question_id"
 
   create_table "experiments", :force => true do |t|
