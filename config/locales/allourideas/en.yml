@@ -78,6 +78,7 @@ en:
     you_have_successfully_activated: You have successfully activated the idea
     you_have_successfully_deactivated: You have successfully deactivated the idea
     history: History
+    choices_related_to_this_choice: Choices related to this choice
     email:
       hello: "Hello,"
       someone_has_uploaded: Someone has uploaded

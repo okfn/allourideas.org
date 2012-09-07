@@ -24,6 +24,14 @@
         %td= select 'choice', 'related_choice_id', @choices.collect { |q| [q.data, q.id] }, :selected => @choice.related_choice_id, :include_blank => true
       %tr
         %td= submit_tag t('form.save'), :class => 'form-btn'
+  - unless @choices_related_to_this_choice.empty?
+    %table.full.item
+      %tr.row0
+        %th{:colspan => 3}= t('items.choices_related_to_this_choice')
+      - for choice in @choices_related_to_this_choice
+        %tr
+          %td{:width=>'80%'}= link_to choice.data, question_choice_path(@question, choice)
+          %td= choice.created_at.getlocal.strftime("%m/%d/%Y")
   %table.full.item
     %tr.row0
       %th{:colspan => 3}= t('items.history')

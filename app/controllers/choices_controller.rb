@@ -17,6 +17,9 @@ class ChoicesController < ApplicationController
     @choices.reject! { |choice| choice.id == @choice.id }
     @num_votes = @choice.wins + @choice.losses
 
+    choice_ids_related_to_this_choice = ChoiceChoice.find_all_by_related_choice_id(@choice.id).map(&:choice_id)
+    @choices_related_to_this_choice = choice_ids_related_to_this_choice.map { |id| Choice.find(id, :params => { :question_id => @question.id }) }
+
     if @photocracy
       @photo = Photo.find(@choice.data.strip)
       @votes = @choice.get(:votes)
