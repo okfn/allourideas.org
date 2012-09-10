@@ -1,7 +1,7 @@
 source :rubygems
 source "http://gems.github.com"
+ruby "1.8.7"
 
-gem "bundler", "1.1.5"
 gem "rails", "2.3.14"
 gem "rdoc", "~> 3.12"
 gem "multi_json", "1.0.4"
@@ -23,7 +23,7 @@ gem "redis-store", "~> 1.0.0"
 gem "redis", "~> 2.2.1"
 gem "system_timer"
 gem "will_paginate", "2.3.14"
-gem "geoip_city", "0.2.0"
+gem "geoip"
 gem "geokit", "1.5.0"
 gem "crack", "0.1.4"
 gem "friendly_id", "2.2.5"
