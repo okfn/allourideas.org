@@ -6,7 +6,7 @@ class Earl < ActiveRecord::Base
   validates_presence_of :name, :on => :create, :message => "can't be blank"
   validates_uniqueness_of :name, :scope => :consultation_id
   validates_length_of :welcome_message, :maximum=>350, :allow_nil => true, :allow_blank => true
-  has_friendly_id :name, :use_slug => true, :scope => :consultation_id
+  has_friendly_id :name, :use_slug => true, :scope => :consultation_id, :strip_diacritics => true
   has_attached_file :logo, :whiny_thumbnails => true, :styles => { :banner => "450x47>", :medium => "150x150>" }
 
   delegate :votes_count, :to => :question

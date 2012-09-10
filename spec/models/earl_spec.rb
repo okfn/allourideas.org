@@ -88,4 +88,10 @@ describe Earl do
     end
   end
 
+  it "should have a slug without accents" do
+    earl = Factory(:earl_without_question, :name => "sêm ácéñtôs")
+
+    earl.slug.name.should == "sem-acentos"
+  end
+
 end
