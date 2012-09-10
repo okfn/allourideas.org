@@ -1046,45 +1046,11 @@ class QuestionsController < ApplicationController
     end
   end
 
-  # GET /questions/new
-  # GET /questions/new.xml
-  def new
-    @errors ||= []
-    @question = Question.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @question }
-    end
-  end
-
   def question_creation_validates?(question)
     # question.errors = []
     question.validate
     false unless question.errors.empty?
     #false
-  end
-
-  # POST /questions
-  # POST /questions.xml
-  def create
-    @user = create_user_and_sign_in unless signed_in?
-    @earl = find_or_build_earl
-    @question = build_question_for(@earl)
-
-    if @earl.save
-      ClearanceMailer.delay.deliver_confirmation(current_user, @question, @photocracy)
-      IdeaMailer.delay.deliver_extra_information(current_user, @question.name, params[:question]['information'], @photocracy) unless params[:question]["information"].blank?
-      session[:standard_flash] = "#{t('questions.new.success_flash')}<br /> #{t('questions.new.success_flash2')}: #{consultation_earl_url(@earl.consultation, @earl)} #{t('questions.new.success_flash3')}. <br /> #{t('questions.new.success_flash4')}: <a href=\"#{admin_question_url(@question)}\"> #{t('nav.manage_question')}</a>"
-
-      if @photocracy
-        redirect_to add_photos_url(@question) and return
-      else
-        redirect_to consultation_earl_url(@earl.consultation, @earl, :just_created => true) and return
-      end
-    else
-      render(:action => "new")
-    end
   end
 
   def update_name
@@ -1247,30 +1213,6 @@ class QuestionsController < ApplicationController
       end
     end
     render :json => @votes.to_json
-  end
-
-  private
-
-  def create_user_and_sign_in
-    user = User.create(:email => params[:question][:email],
-                       :password => params[:question][:password],
-                       :password_confirmation => params[:question][:password])
-    sign_in(user)
-  end
-
-  def find_or_build_earl
-    return current_user.earls.find(params[:earl][:earl_id]) if params[:earl] && params[:earl][:earl_id]
-    earl_options = {}
-    earl_options[:name] = params[:question][:url].strip if params[:question][:url]
-    earl_options.merge!(:flag_enabled => true, :photocracy => true) if @photocracy # flag is enabled by default for photocracy
-    current_user.earls.build(earl_options)
-  end
-
-  def build_question_for(earl)
-    question_attributes = params[:question].slice(:name, :ideas, :url)
-    question_attributes.merge!({:local_identifier => current_user.id,
-                                :visitor_identifier => request.session_options[:id]})
-    earl.build_question(question_attributes)
   end
 
 end
