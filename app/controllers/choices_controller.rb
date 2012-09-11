@@ -20,6 +20,8 @@ class ChoicesController < ApplicationController
     choice_ids_related_to_this_choice = ChoiceChoice.find_all_by_related_choice_id(@choice.id).map(&:choice_id)
     @choices_related_to_this_choice = choice_ids_related_to_this_choice.map { |id| Choice.find(id, :params => { :question_id => @question.id }) }
 
+    @can_edit = (signed_in? && (current_user.admin? || current_user.owns?(@question.earl)))
+
     if @photocracy
       @photo = Photo.find(@choice.data.strip)
       @votes = @choice.get(:votes)

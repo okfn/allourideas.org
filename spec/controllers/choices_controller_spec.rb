@@ -67,6 +67,48 @@ describe ChoicesController do
       get :show, :id => :choice_id, :question_id => question.id, :locale => 'en'
       assigns[:choices].should_not include(choice)
     end
+
+    describe "can edit" do
+      before do
+        @earl = Factory(:earl)
+        @choice = mock_choice(:id => :choice_id)
+        Choice.stub!(:find).with(@choice.id, anything()).and_return(@choice)
+        Choice.stub!(:find).with(:all, anything()).and_return([@choice])
+      end
+
+      it "is true if the user is admin" do
+        sign_in_as_admin
+
+        get :show, :question_id => @earl.question_id, :id => @choice.id
+
+        assigns[:can_edit].should be_true
+      end
+
+      it "is true if the user is signed in and owns the question's earl" do
+        sign_in_as @earl.user
+
+        get :show, :question_id => @earl.question_id, :id => @choice.id
+
+        assigns[:can_edit].should be_true
+      end
+
+      it "is false if the user don't owns the question's earl" do
+        sign_in
+
+        get :show, :question_id => @earl.question_id, :id => @choice.id
+
+        assigns[:can_edit].should be_false
+      end
+
+      it "is false if the user isn't signed in" do
+        sign_out
+
+        get :show, :question_id => @earl.question_id, :id => @choice.id
+
+        assigns[:can_edit].should be_false
+      end
+
+    end
   end
 
 end
