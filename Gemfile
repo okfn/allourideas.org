@@ -32,8 +32,8 @@ gem "i18n", "0.3.7"
 gem "delayed_job", "2.0.6"
 gem "haml", "3.0.9"
 gem "newrelic_rpm", "3.3.0"
-gem "mysql2", "0.2.18"
 gem "koala", "~> 1.4.0"
+gem "mysql"
 
 group :production, :staging do
   gem "sendgrid", "0.1.4"
