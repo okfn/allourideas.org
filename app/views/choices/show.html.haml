@@ -1,6 +1,6 @@
 = content_for :meta do
   <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-= render :partial => 'shared/header_vote'
+= render :partial => 'shared/header_vote' unless request.xhr?
 .ninety
   - form_tag question_choice_path(@question, @choice), :method => :put do |f|
     %table.full.item
