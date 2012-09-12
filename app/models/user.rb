@@ -23,4 +23,10 @@ class User < ActiveRecord::Base
       self.admin
   end
   
+  def self.find_or_create_from_facebook(email, facebook_id)
+    user = User.find_or_initialize_by_email(email)
+    user.facebook_id = facebook_id
+    user.save(false)
+    user
+  end
 end

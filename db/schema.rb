@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120904134124) do
+ActiveRecord::Schema.define(:version => 20120912143740) do
 
   create_table "alternatives", :force => true do |t|
     t.integer "experiment_id"
@@ -167,9 +167,11 @@ ActiveRecord::Schema.define(:version => 20120904134124) do
     t.datetime "updated_at"
     t.boolean  "default",                           :default => false
     t.boolean  "admin",                             :default => false
+    t.integer  "facebook_id",        :limit => 8
   end
 
   add_index "users", ["email"], :name => "index_users_on_email"
+  add_index "users", ["facebook_id"], :name => "index_users_on_facebook_id"
   add_index "users", ["id", "confirmation_token"], :name => "index_users_on_id_and_confirmation_token"
   add_index "users", ["remember_token"], :name => "index_users_on_remember_token"
 

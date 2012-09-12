@@ -31,7 +31,7 @@ class ConsultationsController < ApplicationController
 
   def create
     @consultation = Consultation.new(params[:consultation])
-    @consultation.user = current_user if signed_in?
+    @consultation.user_id = current_user.id if signed_in?
 
     if @consultation.save
       sign_in(@consultation.user) unless signed_in?

@@ -1,0 +1,6 @@
+development:
+  app_id: YOUR_APP_ID
+  secret_key: YOUR_SECRET_KEY
+test:
+  app_id:
+  secret_key:
