@@ -1,7 +1,7 @@
 module FacebookAuthenticationHelper
 
   def authenticate_facebook
-    sign_in(facebook_user) if facebook_request?
+    sign_in(facebook_user) if authorized_in_facebook?
   end
 
   def facebook_request?
@@ -9,6 +9,10 @@ module FacebookAuthenticationHelper
   end
 
   private
+  def authorized_in_facebook?
+    facebook_request? && signed_request.include?('oauth_token')
+  end
+
   def facebook_user
     User.find_or_create_from_facebook(email_from_facebook, facebook_id)
   end

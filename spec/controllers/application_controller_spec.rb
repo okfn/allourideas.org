@@ -3,31 +3,36 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe ApplicationController do
 
   describe "white_label_request" do
-    it "returns true if white_label param is true" do
-      controller.params[:white_label] = 'true'
+    it "returns true if received white_label param" do
+      controller.params[:white_label] = 'anything'
+      controller.session[:white_label] = false
       controller.stub!(:facebook_request?).and_return(false)
 
-      controller.white_label_request?.should be_true
+      controller.should be_white_label_request
+    end
+
+    it "returns true if the white_label cookie is true" do
+      controller.params.delete(:white_label)
+      controller.session[:white_label] = true
+      controller.stub!(:facebook_request?).and_return(false)
+
+      controller.should be_white_label_request
     end
 
     it "returns true if coming from facebook" do
-      controller.params[:white_label] = 'false'
+      controller.params.delete(:white_label)
+      controller.session[:white_label] = false
       controller.stub!(:facebook_request?).and_return(true)
 
-      controller.white_label_request?.should be_true
+      controller.should be_white_label_request
     end
 
-    it "returns false if haven't received the white_label param and is not coming from facebook" do
-      controller.params[:white_label] = 'false'
+    it "returns false if haven't received the white_label param, the white_label cookie is false, and isn't coming from facebook" do
+      controller.params.delete(:white_label)
+      controller.session[:white_label] = false
       controller.stub!(:facebook_request?).and_return(false)
 
-      controller.white_label_request?.should be_false
-    end
-
-    it "returns the value from white_label cookie" do
-      controller.session[:white_label] = :some_value
-
-      controller.white_label_request?.should == :some_value
+      controller.should_not be_white_label_request
     end
   end
 
