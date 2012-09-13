@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
   def white_label_request?
 	  @_white_label ||= session[:white_label]
 	  if @_white_label.nil?
-		  if params[:white_label] == "true"
+		  if (params[:white_label] == "true") || facebook_request?
 			 @_white_label = session[:white_label] = true
 		  else
 			 @_white_label = session[:white_label] = false

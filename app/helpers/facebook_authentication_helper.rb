@@ -1,16 +1,16 @@
 module FacebookAuthenticationHelper
 
   def authenticate_facebook
-    sign_in(facebook_user) if coming_from_facebook?
+    sign_in(facebook_user) if facebook_request?
+  end
+
+  def facebook_request?
+    params.include?('signed_request')
   end
 
   private
   def facebook_user
     User.find_or_create_from_facebook(email_from_facebook, facebook_id)
-  end
-
-  def coming_from_facebook?
-    params.include?('signed_request')
   end
 
   def email_from_facebook
