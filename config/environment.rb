@@ -13,4 +13,6 @@ Rails::Initializer.run do |config|
 
   config.action_mailer.delivery_method = :smtp
 
+  config.middleware.use 'FacebookCanvas'
+
 end
