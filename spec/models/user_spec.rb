@@ -9,13 +9,7 @@ describe User do
 
       user.email.should == unique_email
       user.facebook_id.should == 123
-    end
-
-    it "should save the user even without password" do
-      user = User.find_or_create_from_facebook('a@b.com', 123)
-
-      user.password.should be_nil
-      user.should_not be_new_record
+      user.password.should_not be_nil
     end
 
     it "should update user's facebook id if there's one user with the same email" do
@@ -23,6 +17,15 @@ describe User do
       User.find_or_create_from_facebook(user.email, 123)
 
       user.reload.facebook_id.should == 123
+    end
+
+    it "should not change the user's password if it's existing" do
+      user = Factory(:user)
+      encrypted_password = user.encrypted_password
+
+      User.find_or_create_from_facebook(user.email, 123)
+
+      user.reload.encrypted_password.should == encrypted_password
     end
   end
 

@@ -136,16 +136,6 @@ describe ConsultationsController do
       }.should change(user.consultations, :count).by(1)
     end
 
-    it "assigns the consultation to the current user, even if he has no password" do
-      user = Factory.build(:user, :password => nil)
-      user.save(false)
-      sign_in_as user
-
-      lambda {
-        post :create, :consultation => { :name => "Consultation" }
-      }.should change(user.consultations, :count).by(1)
-    end
-
     it "redirects to consultation's show page" do
       post :create, :consultation => { :name => "Consultation" }
 

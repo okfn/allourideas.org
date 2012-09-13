@@ -1,3 +1,5 @@
+require 'sha1'
+
 class User < ActiveRecord::Base
   include Clearance::User
   has_many :consultations
@@ -26,7 +28,13 @@ class User < ActiveRecord::Base
   def self.find_or_create_from_facebook(email, facebook_id)
     user = User.find_or_initialize_by_email(email)
     user.facebook_id = facebook_id
-    user.save(false)
+    user.password = User.random_password if user.new_record?
+    user.save
     user
+  end
+
+  private
+  def self.random_password
+    SHA1.new(rand.to_s)
   end
 end
