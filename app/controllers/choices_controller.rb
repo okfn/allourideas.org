@@ -20,6 +20,8 @@ class ChoicesController < ApplicationController
     choice_ids_related_to_this_choice = ChoiceChoice.find_all_by_related_choice_id(@choice.id).map(&:choice_id)
     @choices_related_to_this_choice = choice_ids_related_to_this_choice.map { |id| Choice.find(id, :params => { :question_id => @question.id }) }
 
+    @questions = @earl.consultation.earls.map(&:question)
+
     @can_edit = (signed_in? && (current_user.admin? || current_user.owns?(@question.earl)))
 
     if @photocracy
@@ -73,6 +75,7 @@ class ChoicesController < ApplicationController
       related_choice_id = params[:choice][:related_choice_id]
       related_choice_id = nil if related_choice_id.blank?
       choice.related_choice_id = related_choice_id
+      choice.question_id = params[:choice][:question_id]
     end
     choice.save
 

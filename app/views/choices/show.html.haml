@@ -22,6 +22,9 @@
       %tr
         %td= t('items.related_choice')
         %td= select_tag 'choice[related_choice_id]', options_for_select(@choices.collect { |q| [q.data, q.id] }.insert(0, ""), @choice.related_choice_id), :disabled => !@can_edit
+      %tr
+        %td= t('common.category')
+        %td= select_tag 'choice[question_id]', options_for_select(@questions.collect { |q| [q.name, q.id] }, @choice.question_id), :disabled => !@choice.may_change_category?
       -if @can_edit
         %tr
           %td= submit_tag t('form.save'), :class => 'form-btn'
