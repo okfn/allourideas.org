@@ -49,12 +49,12 @@
 
     $('.example_notice').hide();
 
-    // verify new idea is not blank, default or longer than 140 characters
+    // verify new idea is not blank, default or longer than <%= Const::MAX_ITEM_LENGTH %> characters
     if (new_idea == 'Add your own idea here...' || new_idea == '' || new_idea == default_text) {
       alert('<%=t('vote.submit_idea_default_error') %>');
       return;
     }
-    if (new_idea.length > 140) {
+    if (new_idea.length > <%= Const::MAX_ITEM_LENGTH %>) {
       alert('<%=t('vote.submit_idea_too_long_error') %>');
       return;
     }

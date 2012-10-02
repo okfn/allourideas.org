@@ -37,4 +37,21 @@ describe Choice do
 
     ChoiceChoice.find_by_choice_id(choice.id).related_choice_id.should be_nil
   end
+
+  describe "category change" do
+    it "may change category if it has never lost or won" do
+      choice = Choice.new(:losses => 0, :wins => 0)
+      choice.may_change_category?.should be_true
+    end
+
+    it "may not change category if it has ever lost" do
+      choice = Choice.new(:losses => 1, :wins => 0)
+      choice.may_change_category?.should be_false
+    end
+
+    it "may not change category if it has ever won" do
+      choice = Choice.new(:losses => 0, :wins => 1)
+      choice.may_change_category?.should be_false
+    end
+  end
 end

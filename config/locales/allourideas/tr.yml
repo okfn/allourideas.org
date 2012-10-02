@@ -120,7 +120,7 @@ tr:
     view_all_the_results: Tüm sonuçları gör
     others_thought: Diğerlerinin ne düşündüklerini görmek için tıkla.
     submit_idea_default_error: Üzgünüz, boş fikir girilmesine izin verilmiyor. 
-    submit_idea_too_long_error: Üzgünüz, fikirlerin 140 karakterden kısa olması gerekiyor.
+    submit_idea_too_long_error: Üzgünüz, fikirlerin 255 karakterden kısa olması gerekiyor.
     submit_idea_thankyou: Teşekkür ederiz. Fikriniz eklenmiştir. Lütfen daha başka fikirler de ekleyin.
     vote_timeout_error: "Üzgünüz, oy vermek çok uzun süre alıyor ... trafik çok yoğun!"
     vote_other_error: "Üzgünüz, oyunuz sayılmadı ... bir hata oldu"

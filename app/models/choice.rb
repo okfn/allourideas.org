@@ -37,6 +37,10 @@ class Choice < ActiveResource::Base
 	  attributes['user_created']
   end
 
+  def may_change_category?
+    wins.zero? && losses.zero?
+  end
+
   def related_choice
     Choice.find(related_choice_id, :params => { :question_id => question_id }) if related_choice_id
   end

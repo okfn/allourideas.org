@@ -1,8 +1,7 @@
 -@the_id = params[:question_id].nil? ? params[:id] : params[:question_id]
 -@cast_votes_url = consultation_earl_path(@earl.consultation, @earl)
--@results_url = results_question_path(@question)
+-@results_url = results_consultation_path(@earl.consultation)
 -@manage_url = admin_question_path(@question)
--@all_results_url = results_question_path(@question, :more => true)
 -@about_url= about_question_url(@question)
 
 .row
@@ -25,12 +24,8 @@
       %li{:class => current_page?(@cast_votes_url) ? 'active' : ''}
         = link_to(t('vote.cast_votes'), @cast_votes_url)
       - if @question.user_can_view_results?(current_user, @earl)
-        - if params[:all].nil?
-          %li{:class => current_page?(@results_url) ? 'active' : ''}
-            = link_to(t('nav.view_results'), @results_url)
-        - else
-          %li{:class => current_page?(@all_results_url) ? 'active' : ''}
-            = link_to(t('nav.view_results'), @all_results_url)
+        %li{:class => current_page?(@results_url) ? 'active' : ''}
+          = link_to(t('nav.view_results'), @results_url)
       %li{:class => current_page?(@about_url) ? 'active' : ''}
         = link_to(t('nav.about_this_page'), @about_url)
       - if current_user.try(:owns?, @earl) || current_user.try(:admin?)

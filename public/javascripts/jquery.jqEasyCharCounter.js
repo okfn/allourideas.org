@@ -20,8 +20,8 @@ $.fn.extend({
         return this.each(function() {
             var $this = $(this),
                 options = $.extend({
-                    maxChars: 140,
-					maxCharsWarning: 130,
+                    maxChars: 255,
+					maxCharsWarning: 220,
 					msgFontSize: '100%',
 					msgFontColor: '#000',
 					msgFontFamily: 'inherit',

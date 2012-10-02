@@ -86,7 +86,7 @@ de:
     over: besser als
     submit: abschicken
     submit_idea_default_error: Entschuldigung, leere Vorschläge sind nicht zulässig.
-    submit_idea_too_long_error: Entschuldigung, Ihr Vorschlag sollte nicht mehr als 140 Zeichen haben.
+    submit_idea_too_long_error: Entschuldigung, Ihr Vorschlag sollte nicht mehr als 255 Zeichen haben.
     submit_idea_thankyou: Danke! Ihr Vorschlag wurde hinzugefügt. Bitte geben Sie weitere ein.
     vote_timeout_error: "Entschuldigung, Ihre Abstimmung dauerte zu lange."
     vote_other_error: "Entschuldigung, wegen eines Fehlers wurde ihre Stimme nicht gezählt."

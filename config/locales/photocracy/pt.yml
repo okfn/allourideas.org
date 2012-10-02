@@ -51,7 +51,7 @@ pt:
     over: melhor do que
     submit: Submeter
     submit_idea_default_error: Desculpe, ideias em branco não são permitidas.
-    submit_idea_too_long_error: Desculpe, a ideia precisa ter menos de 140 caracteres.
+    submit_idea_too_long_error: Desculpe, a ideia precisa ter menos de 255 caracteres.
     submit_idea_thankyou: Obrigado! Sua ideia foi adicionada. Por favor, adicione mais algumas.
     vote_timeout_error: "Desculpe, a votação está demorando muito... Excesso de tráfego!"
     vote_other_error: "Desculpe, seu voto não foi contado... houve um erro"

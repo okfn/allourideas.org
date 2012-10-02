@@ -121,7 +121,7 @@ it:
     view_all_the_results: Visualizza tutti i risultati
     others_thought: Clicca per vedere quello que pensano gli altri.
     submit_idea_default_error: Siamo spiacenti, risposte vuote non sono consentite. 
-    submit_idea_too_long_error: Spiacenti, le risposte devono essere lunghe meno di 140 caratteri.
+    submit_idea_too_long_error: Spiacenti, le risposte devono essere lunghe meno di 255 caratteri.
     submit_idea_thankyou: Grazie. La tua risposta è stata aggiunta. Si prega di aggiungere altre risposte.
     vote_timeout_error: "Ci dispiace, la tua votazione ha impiegato troppo tempo ... troppo traffico!"
     vote_other_error: "Spiacenti, il tuo voto non è stato conteggiato ... è avvenuto un errore"

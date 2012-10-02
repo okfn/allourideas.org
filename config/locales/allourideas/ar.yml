@@ -192,7 +192,7 @@ ar:
     view_all_the_results: ينظر كل النتيجات
     others_thought: Click to see what others thought.
     submit_idea_default_error: عذرا لا يسمح للأفكار فارغة
-    submit_idea_too_long_error: عذرا، والأفكار بحاجة إلى أن يكون أقل من 140 حرفا.
+    submit_idea_too_long_error: عذرا، والأفكار بحاجة إلى أن يكون أقل من 255 حرفا.
     submit_idea_thankyou: شكرا لك. تمت إضافة فكرتك. الرجاء إضافة بعض مزيد من الأفكار.
     vote_timeout_error: "Sorry, voting is taking too long ... too much traffic!"
     vote_other_error: "Sorry, your vote wasn't counted ... there was an error"
