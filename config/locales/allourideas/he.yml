@@ -110,7 +110,7 @@ he:
     view_all_the_results: צפה בכל התוצאות
     others_thought: הקלק לראות מה אחרים חשבו
     submit_idea_default_error: מצטערים, לא ניתן לרשום רעיונות ריקים. 
-    submit_idea_too_long_error: מצטערים, הרעיונות מוגבלים ל140 תווים.
+    submit_idea_too_long_error: מצטערים, הרעיונות מוגבלים ל255 תווים.
     submit_idea_thankyou: תודה, רעיונך צורף. אנא הוסף/י עוד רעיונות.
     vote_timeout_error: "מצטערים, ההצבעה נמשכת יותר מדי זמן...יותר מדי מצביעים!"
     vote_other_error: "מצטערים, הצבעתך לא נרשמה – חלה טעות."

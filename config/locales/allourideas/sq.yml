@@ -114,7 +114,7 @@ sq:
     cd_explicit_dont_know_right_widget: "Un\xC3\xAB nuk e di t\xC3\xAB mjaftueshme p\xC3\xABr iden\xC3\xAB djathtas"
     cant_decide_title: "Un\xC3\xAB nuk mund t\xC3\xAB vendos\xC3\xAB sepse..."
     you_chose_winner_over_loser: Ju zgjedhni %{winner} mbi %{loser}
-    submit_idea_too_long_error: "Na vjen keq, idet\xC3\xAB duhet t\xC3\xAB jet\xC3\xAB m\xC3\xAB pak se 140 karaktere."
+    submit_idea_too_long_error: "Na vjen keq, idet\xC3\xAB duhet t\xC3\xAB jet\xC3\xAB m\xC3\xAB pak se 255 karaktere."
     leveling: 
       adjective_5: super
       adjective_6: fantastike

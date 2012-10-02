@@ -5,6 +5,6 @@ module Const
   VISIT_STALE_AFTER = 10800 # 3 hours
   HASH_IP = false
   MAX_QUESTION_LENGTH = 100
-  MAX_ITEM_LENGTH = 140
+  MAX_ITEM_LENGTH = 255
   ITEM_LIMIT = 10
 end

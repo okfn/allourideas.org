@@ -188,7 +188,7 @@ en:
     view_all_the_results: View all the results
     others_thought: Click to see what others thought.
     submit_idea_default_error: Sorry, blank photos are not allowed. 
-    submit_idea_too_long_error: Sorry, photos need to be less than 140 characters.
+    submit_idea_too_long_error: Sorry, photos need to be less than 255 characters.
     submit_idea_thankyou: Thank you. Your photo has been added. Please add some more photos.
     vote_timeout_error: "Sorry, voting is taking too long ... too much traffic!"
     vote_other_error: "Sorry, your vote wasn't counted ... there was an error"

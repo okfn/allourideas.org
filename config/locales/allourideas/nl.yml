@@ -110,7 +110,7 @@ nl:
     view_all_the_results: Bekijk alle resultaten
     others_thought: Klik om te zien wat anderen dachten.
     submit_idea_default_error: Sorry, lege ideeën zijn niet toegestaan. 
-    submit_idea_too_long_error: Sorry, ideeën mogen niet langer zijn dan 140 tekens.
+    submit_idea_too_long_error: Sorry, ideeën mogen niet langer zijn dan 255 tekens.
     submit_idea_thankyou: Bedankt. Je idee is toegevoegd. Voeg nog wat meer ideeën toe.
     vote_timeout_error: "Sorry, het stemmen duurt te lang ... teveel verkeer!"
     vote_other_error: "Sorry, je stem is niet meegeteld ... er was een foutmelding"

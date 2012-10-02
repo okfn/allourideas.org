@@ -118,7 +118,7 @@ fr:
     cd_explicit_dont_know_right_widget: "Je n'en sais pas assez sur l' id\xC3\xA9e \xC3\xA0 droite"
     cant_decide_title: "Je ne peux pas d\xC3\xA9cider, parce que..."
     you_chose_winner_over_loser: Vous avez choisi %{winner} sur %{loser}
-    submit_idea_too_long_error: "D\xC3\xA9sol\xC3\xA9, il faut moins de 140 caract\xC3\xA8res."
+    submit_idea_too_long_error: "D\xC3\xA9sol\xC3\xA9, il faut moins de 255 caract\xC3\xA8res."
     leveling: 
       adjective_5: super
       adjective_6: fantastique

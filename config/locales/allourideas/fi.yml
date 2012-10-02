@@ -169,7 +169,7 @@ fi:
     cd_explicit_dont_know_right_widget: "En tied\xC3\xA4 tarpeeksi oikeanpuoleisesta ideasta"
     cant_decide_title: "En osaa p\xC3\xA4\xC3\xA4tt\xC3\xA4\xC3\xA4, koska..."
     you_chose_winner_over_loser: Valitsit %{winner} mieluummin kuin %{loser}
-    submit_idea_too_long_error: "Valitettavasti ideatekstin pituuden t\xC3\xA4ytyy olla alle 140 merkki\xC3\xA4."
+    submit_idea_too_long_error: "Valitettavasti ideatekstin pituuden t\xC3\xA4ytyy olla alle 255 merkki\xC3\xA4."
     leveling: 
       adjective_5: huippua
       adjective_6: fantastista
