@@ -2,10 +2,12 @@ class ApplicationController < ActionController::Base
   include Clearance::Authentication
   include FacebookAuthenticationHelper
   
+  alias_method_chain :authenticate, :facebook
+
   helper :all
   protect_from_forgery
   
-  before_filter :authenticate_facebook, :initialize_session, :set_session_timestamp, :record_action, :view_filter, :set_pairwise_credentials, :set_locale, :set_p3p_header
+  before_filter :initialize_session, :set_session_timestamp, :record_action, :view_filter, :set_pairwise_credentials, :set_locale, :set_p3p_header, :sign_in_facebook
 
   # preprocess photocracy_view_path on boot because
   # doing pathset generation during a request is very costly.

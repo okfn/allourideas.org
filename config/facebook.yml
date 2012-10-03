@@ -1,6 +1,8 @@
 development:
+  app_namespace: YOUR_APP_NAMESPACE
   app_id: YOUR_APP_ID
   secret_key: YOUR_SECRET_KEY
 test:
+  app_namespace:
   app_id:
   secret_key:

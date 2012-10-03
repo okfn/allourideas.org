@@ -246,7 +246,7 @@ describe ConsultationsController do
   end
 
   describe "GET results" do
-    it "redirects to if not signed in" do
+    it "redirects to login page if not signed in" do
       get :results, :id => :consultation_id
       response.should redirect_to(new_session_url)
     end
