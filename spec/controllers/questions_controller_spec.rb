@@ -104,6 +104,15 @@ describe QuestionsController do
       JSON.parse(response.body).should == {"message" => "You've just activated your question", "verb" => "Activated"}
       earl.reload.should be_active
     end
+
+    it "should activate the earl's consultation, if it was inactive" do
+      consultation = Factory.build(:consultation_without_earls, :active => false)
+      earl = Factory(:earl, :consultation => consultation)
+      sign_in_as earl.user
+      post :toggle, :format => 'js', :id => earl.question_id
+
+      consultation.reload.should be_active
+    end
   end
 
 end

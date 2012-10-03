@@ -53,4 +53,15 @@ describe Consultation do
     end
   end
 
+  describe "activate!" do
+    it "should activate and save the consultation" do
+      consultation = Factory.build(:consultation_without_earls, :active => false)
+
+      consultation.activate!
+
+      consultation.should be_active
+      consultation.should_not be_new_record
+    end
+  end
+
 end
