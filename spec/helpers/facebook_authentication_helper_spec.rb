@@ -4,6 +4,23 @@ describe FacebookAuthenticationHelper do
   def stub_facebook_oauth_with!(parsed_signed_request)
     oauth_mock = mock(:parse_signed_request => parsed_signed_request)
     Koala::Facebook::OAuth.stub!(:new).and_return(oauth_mock)
+    oauth_mock
+  end
+
+  describe "authenticate with facebook" do
+    it "authenticates using facebook" do
+      helper.should_receive(:authenticate_facebook).and_return(true)
+
+      helper.authenticate_with_facebook
+    end
+
+    it "authenticates without facebook, if it's not a facebook request" do
+      params.delete('signed_request')
+
+      helper.should_receive(:authenticate_without_facebook)
+
+      helper.authenticate_with_facebook
+    end
   end
 
   describe "authentication" do
@@ -31,10 +48,13 @@ describe FacebookAuthenticationHelper do
       current_user.should_not be_new_record
     end
 
-    it "should not try to sign in if the user has not authorized the app" do
-      stub_facebook_oauth_with!({})
+    it "should redirect to facebook's authorization url if the user has not authorized the app" do
+      oauth_mock = stub_facebook_oauth_with!({})
+      oauth_mock.stub(:url_for_oauth_code).and_return('facebook_auth_url')
+      Koala::Facebook::OAuth.stub!(:new).and_return(oauth_mock)
 
       helper.should_not_receive(:sign_in)
+      helper.should_receive(:redirect_to).with('facebook_auth_url')
 
       helper.authenticate_facebook
     end

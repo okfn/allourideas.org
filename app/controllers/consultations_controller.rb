@@ -1,5 +1,6 @@
 class ConsultationsController < ApplicationController
   before_filter :authenticate, :except => [:show, :new, :create]
+  before_filter :authenticate_facebook, :only => [:new]
 
   def index
     @consultations = current_user.consultations
