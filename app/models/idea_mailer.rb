@@ -3,7 +3,7 @@ unless Rails.env == "development" || Rails.env == "test"
 end
 class IdeaMailer < ActionMailer::Base
 
-  default_url_options[:host] = HOST
+  default_url_options[:host] = APP_CONFIG[:HOST]
 
   def notification(earl, question, choice_text, choice_id, photocracy=false)
     setup_email(earl.user, photocracy)
@@ -36,7 +36,7 @@ class IdeaMailer < ActionMailer::Base
     setup_email(earl.user, photocracy)
     
     @subject += "Possible inappropriate #{photocracy ? 'photo' : 'idea'} flagged by user"
-    @bcc = photocracy ? "info@photocracy.org" : "info@allourideas.org"
+    @bcc = photocracy ? APP_CONFIG[:INFO_PHOTOCRACY_EMAIL] : APP_CONFIG[:INFO_ALLOURIDEAS_EMAIL]
     @body[:earl] = earl
     @body[:choice_id] = choice_id
     @body[:choice_data] = choice_data
@@ -47,8 +47,8 @@ class IdeaMailer < ActionMailer::Base
   end
   
   def extra_information(user, question_name, information, photocracy=false)
-    @recipients  = "signups@allourideas.org"
-    @from        = "info@allourideas.org"
+    @recipients  = APP_CONFIG[:SIGNUPS_ALLOURIDEAS_EMAIL]
+    @from        = APP_CONFIG[:INFO_ALLOURIDEAS_EMAIL]
     @subject     = photocracy ? "[Photocracy] " : "[All Our Ideas] "
     @sent_on     = Time.now
     @body[:user] = user
@@ -81,7 +81,7 @@ class IdeaMailer < ActionMailer::Base
       if user
         @recipients  = user.email
       end
-      @from        = photocracy ? "info@photocracy.org" : "info@allourideas.org"
+      @from        = photocracy ? APP_CONFIG[:INFO_PHOTOCRACY_EMAIL] : APP_CONFIG[:INFO_ALLOURIDEAS_EMAIL]
       @subject     = photocracy ? "[Photocracy] " : "[All Our Ideas] "
       @sent_on     = Time.now
       @body[:user] = user
@@ -103,9 +103,9 @@ class IdeaMailer < ActionMailer::Base
        end
 
        if photocracy
-	       choice_url = "http://#{PHOTOCRACY_HOST}#{choice_path}"
+	       choice_url = "http://#{APP_CONFIG[:PHOTOCRACY_HOST]}#{choice_path}"
        else
-	       choice_url = "http://#{HOST}#{choice_path}"
+	       choice_url = "http://#{APP_CONFIG[:HOST]}#{choice_path}"
        end
        choice_url
     end
