@@ -14,8 +14,8 @@ end
 
 describe Delayed do
 
-  it "should call HoptoadNotifier" do
-    HoptoadNotifier.expects(:notify)
+  it "should call Airbrake" do
+    Airbrake.expects(:notify)
 
     @worker = Delayed::Worker.new(:max_priority => nil, :min_priority => nil, :quiet => true)
     @worker.max_attempts = 1

@@ -1,10 +1,10 @@
 <p>Hi,</p>
 
-<p>This email confirms your recent activity on http://www.<%= @photocracy ? 'photocracy' : 'allourideas' %>.org. Here's the website you created: <%= "http://#{@photocracy ? PHOTOCRACY_HOST : HOST}#{consultation_earl_path(@question.earl.consultation, @question.earl)}" %></p>
+<p>This email confirms your recent activity on http://www.<%= @photocracy ? 'photocracy' : 'allourideas' %>.org. Here's the website you created: <%= "http://#{@photocracy ? APP_CONFIG[:PHOTOCRACY_HOST] : APP_CONFIG[:HOST]}#{consultation_earl_path(@question.earl.consultation, @question.earl)}" %></p>
 <%- if @photocracy -%>
 
 <p>The more photos you upload, the better your results.
-Add photos here: <%= "http://#{@photocracy ? PHOTOCRACY_HOST : HOST}#{addphotos_question_path(@question)}" %></p>
+Add photos here: <%= "http://#{@photocracy ? APP_CONFIG[:PHOTOCRACY_HOST] : APP_CONFIG[:HOST]}#{addphotos_question_path(@question)}" %></p>
 <%- end -%>
 
 <p>Thanks,</p>
