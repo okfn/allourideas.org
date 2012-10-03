@@ -10,4 +10,9 @@ class Consultation < ActiveRecord::Base
   def votes_count
     earls.map(&:votes_count).inject(:+) || 0
   end
+
+  def activate!
+    self.active = true
+    save!
+  end
 end

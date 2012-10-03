@@ -1011,7 +1011,7 @@ class QuestionsController < ApplicationController
       format.js  { 
         earl.active = !(earl.active)
         verb = earl.active ? t('items.list.activated') : t('items.list.deactivated')
-        if earl.save!
+        if earl.consultation.activate! && earl.save!
           logger.info "just #{verb} question"
           render :json => {:message => "You've just #{verb.downcase} your question", :verb => verb}.to_json
         else
