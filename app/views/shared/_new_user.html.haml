@@ -1,0 +1,6 @@
+%p
+  = form.label :email
+  = form.text_field :email, :size => 30, :class => 'required email', :maxlength => Const::MAX_QUESTION_LENGTH
+%p
+  = form.label :password
+  = form.password_field :password, :size => 20, :class => 'required'

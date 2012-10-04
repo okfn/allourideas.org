@@ -42,7 +42,10 @@
   .row.add-idea-row
     .span6.offset3
       .add_idea
-        = render :partial => 'items/form', :locals => {:the_ab_test_name => @ab_test_ideas_text_name}
+        -if signed_in?
+          = render :partial => 'items/form', :locals => {:the_ab_test_name => @ab_test_ideas_text_name}
+        -else
+          %p= link_to(t('vote.login_to_add_your_own_idea'), new_session_path(:callback => request.url))
         .tellmearea
 
 #cant_decide_options.hide.modal.fade

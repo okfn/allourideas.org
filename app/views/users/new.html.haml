@@ -1,0 +1,7 @@
+%h1= t('user.signup')
+
+-form_for @user do |f|
+  %p= f.error_messages
+  = hidden_field_tag 'callback', params[:callback]
+  = render :partial => 'shared/new_user', :locals => { :form => f }
+  %p= f.submit

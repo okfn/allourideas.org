@@ -60,17 +60,15 @@ describe FacebookAuthenticationHelper do
     end
   end
 
-  describe "facebook request" do
-    it "should be true if there's a signed_request param" do
-      params['signed_request'] = {}
+  describe "facebook authorization url" do
+    it "should ask for email permissions and set the app's URL in facebook as callback" do
+      oauth_mock = mock
+      oauth_mock.should_receive(:url_for_oauth_code).with(:permissions => 'email',
+                                                          :callback => "http://apps.facebook.com/#{Facebook::APP_NAMESPACE}")
 
-      helper.facebook_request?.should be_true
-    end
+      Koala::Facebook::OAuth.should_receive(:new).and_return(oauth_mock)
 
-    it "should be false if there's no signed_request param" do
-      params.delete('signed_request')
-
-      helper.facebook_request?.should be_false
+      helper.facebook_authorization_url
     end
   end
 end

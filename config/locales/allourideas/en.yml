@@ -42,6 +42,7 @@ en:
     make_your_own: Create Your Own Question
     view_idea: View Idea
     signup: sign up
+    login_with_facebook: Log In with Facebook
     return_voting_widget: Return to Voting
     view_more_results_widget: View More Results
   home:
@@ -102,6 +103,7 @@ en:
     close: Close
     email: Email
     login: Log In
+    signup: Sign Up
     control_panel: Control Panel
     password: Password
     password_confirmation: Password Confirmation
@@ -171,6 +173,7 @@ en:
     not_active_error: Sorry, that question is not active.
     owner_password_exp: The owner of this idea marketplace has made it password protected. Please contact the owner to get the username and password you will need in order to participate.
   vote:
+    login_to_add_your_own_idea: Log in to add your own idea...
     add_your_idea: Add your own idea here...
     add_your_idea_button: Add your own idea
     cast_votes: Cast Votes
