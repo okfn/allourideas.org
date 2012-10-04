@@ -13,7 +13,7 @@
       %td
         = submit_tag t('user.login'), :class => 'form-btn'
         or
-        = link_to(t('nav.signup'), new_consultation_path)
+        = link_to(t('nav.signup'), new_user_path(:callback => params[:callback]))
     %tr
       %td
       %td=link_to(t('user.forgot_password'), new_password_path)
