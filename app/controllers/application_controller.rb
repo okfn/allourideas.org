@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
 
   helper_method :white_label_request?
   def white_label_request?
-    session[:white_label] = (params[:white_label] || session[:white_label] || facebook_request?)
+    request.url.include?('whitelabel')
   end
 
   def set_session_timestamp
