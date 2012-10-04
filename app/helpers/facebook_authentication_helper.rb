@@ -12,18 +12,18 @@ module FacebookAuthenticationHelper
     sign_in(facebook_user) if authorized_in_facebook?
   end
 
-  private
   def facebook_authorization_url
     Koala::Facebook::OAuth.new.url_for_oauth_code(:permissions => 'email',
-                                                  :callback => "#{facebook_host_url}/#{request.path}")
+                                                  :callback => facebook_host_url)
   end
 
+  private
   def facebook_request?
     params.include?('signed_request')
   end
 
   def facebook_host_url
-    "https://apps.facebook.com/#{Facebook::APP_NAMESPACE}"
+    "http://apps.facebook.com/#{Facebook::APP_NAMESPACE}"
   end
 
   def authorized_in_facebook?

@@ -13,6 +13,8 @@
       %td
         = submit_tag t('user.login'), :class => 'form-btn'
         or
+        = link_to(t('nav.login_with_facebook'), facebook_authorization_url)
+        or
         = link_to(t('nav.signup'), new_user_path(:callback => params[:callback]))
     %tr
       %td
