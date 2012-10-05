@@ -24,7 +24,7 @@
       %tbody 
         -for choice in @choices #.sort_by {|x| [(!!x.attributes['active']).to_s, x.data]}
           %tr
-            %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(@question, choice), :id => choice.id, :question_id => @question.id, :"data-toggle" => "modal-ajax"
+            %td.title= link_to h(choice.data), question_choice_url(@question, choice), :id => choice.id, :question_id => @question.id, :"data-toggle" => "modal-ajax"
             %td.votes= choice.attributes['score'].round.to_s
             %td.votes= choice.attributes['user_created'] ? t('admin.user') : t('admin.seed')
             %td.votes{:id => "choice_#{choice.id}_status"}

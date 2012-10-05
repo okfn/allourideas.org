@@ -20,7 +20,7 @@
         %tbody
           - @choices.each do |choice|
             %tr
-              %td.title= link_to h(truncate(choice.data, :length => 140, :omission => '…')), question_choice_url(choice.question_id, choice), :"data-toggle" => "modal-ajax"
+              %td.title= link_to h(choice.data), question_choice_url(choice.question_id, choice), :"data-toggle" => "modal-ajax"
               %td= link_to choice.earl.name, consultation_earl_path(choice.earl.consultation_id, choice.earl)
               %td.span4.choice-progress
                 .progress.progress-gray
