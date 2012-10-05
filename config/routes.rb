@@ -3,6 +3,7 @@ ActionController::Routing::Routes.draw do |map|
   map.signin '/sign_in', :controller => "clearance/sessions", :action => :new
   map.signout '/sign_out', :controller => "clearance/sessions", :action => :destroy
   map.resource :passwords, :controller => "clearance/passwords"
+  map.resource :users, :controller => "clearance/users", :only => [:new]
 
   map.resources :questions,
     :collection => {
