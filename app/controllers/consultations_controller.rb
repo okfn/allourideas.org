@@ -1,5 +1,5 @@
 class ConsultationsController < ApplicationController
-  before_filter :authenticate, :except => [:show, :new, :create]
+  before_filter :authenticate, :except => [:show, :new, :create, :results]
   before_filter :authenticate_facebook, :only => [:new]
 
   def index
@@ -84,7 +84,6 @@ class ConsultationsController < ApplicationController
 
   def results
     @consultation = Consultation.find(params[:id])
-    redirect_to root_url unless (@consultation.user == current_user) || current_user.admin?
     @choices = choices_with_earl_sorted_by_score(@consultation.earls)
   end
 
