@@ -25,9 +25,10 @@ class User < ActiveRecord::Base
       self.admin
   end
   
-  def self.find_or_create_from_facebook(email, facebook_id)
+  def self.find_or_create_from_facebook(email, facebook_id, facebook_oauth_token)
     user = User.find_or_initialize_by_email(email)
     user.facebook_id = facebook_id
+    user.facebook_oauth_token = facebook_oauth_token
     user.password = User.random_password if user.new_record?
     user.save
     user

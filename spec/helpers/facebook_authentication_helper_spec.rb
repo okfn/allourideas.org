@@ -45,6 +45,7 @@ describe FacebookAuthenticationHelper do
       current_user.should_not be_nil
       current_user.email.should == @facebook_user_data['email']
       current_user.facebook_id.should == @facebook_user_data['id']
+      current_user.facebook_oauth_token.should == 'oauth_token'
       current_user.should_not be_new_record
     end
 
@@ -61,9 +62,9 @@ describe FacebookAuthenticationHelper do
   end
 
   describe "facebook authorization url" do
-    it "should ask for email permissions and set the app's URL in facebook as callback" do
+    it "should ask for email and publishing permissions and set the app's URL in facebook as callback" do
       oauth_mock = mock
-      oauth_mock.should_receive(:url_for_oauth_code).with(:permissions => 'email',
+      oauth_mock.should_receive(:url_for_oauth_code).with(:permissions => 'email,publish_stream',
                                                           :callback => "http://apps.facebook.com/#{Facebook::APP_NAMESPACE}")
 
       Koala::Facebook::OAuth.should_receive(:new).and_return(oauth_mock)

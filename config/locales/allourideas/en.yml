@@ -356,3 +356,5 @@ en:
     cant_edit_consultation: We are sorry, but you cannot edit the consultation text once voting has started. If you want to change the consultation text at this point you need to create a new one.
     user_details: User Details
     new_category: New Category
+  facebook:
+    idea_creation_sharing_message: "I've just added an idea into a public consultation"

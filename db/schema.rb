@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120912143740) do
+ActiveRecord::Schema.define(:version => 20121004220950) do
 
   create_table "alternatives", :force => true do |t|
     t.integer "experiment_id"
@@ -158,16 +158,17 @@ ActiveRecord::Schema.define(:version => 20120912143740) do
 
   create_table "users", :force => true do |t|
     t.string   "email"
-    t.string   "encrypted_password", :limit => 128
-    t.string   "salt",               :limit => 128
-    t.string   "confirmation_token", :limit => 128
-    t.string   "remember_token",     :limit => 128
-    t.boolean  "email_confirmed",                   :default => false, :null => false
+    t.string   "encrypted_password",   :limit => 128
+    t.string   "salt",                 :limit => 128
+    t.string   "confirmation_token",   :limit => 128
+    t.string   "remember_token",       :limit => 128
+    t.boolean  "email_confirmed",                     :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "default",                           :default => false
-    t.boolean  "admin",                             :default => false
-    t.integer  "facebook_id",        :limit => 8
+    t.boolean  "default",                             :default => false
+    t.boolean  "admin",                               :default => false
+    t.integer  "facebook_id",          :limit => 8
+    t.string   "facebook_oauth_token"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email"

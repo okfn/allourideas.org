@@ -13,7 +13,7 @@ module FacebookAuthenticationHelper
   end
 
   def facebook_authorization_url
-    Koala::Facebook::OAuth.new.url_for_oauth_code(:permissions => 'email',
+    Koala::Facebook::OAuth.new.url_for_oauth_code(:permissions => 'email,publish_stream',
                                                   :callback => facebook_host_url)
   end
 
@@ -31,7 +31,7 @@ module FacebookAuthenticationHelper
   end
 
   def facebook_user
-    User.find_or_create_from_facebook(email_from_facebook, facebook_id)
+    User.find_or_create_from_facebook(email_from_facebook, facebook_id, facebook_oauth_token)
   end
 
   def email_from_facebook
@@ -43,7 +43,11 @@ module FacebookAuthenticationHelper
   end
 
   def facebook_user_data
-    @facebook_user_data ||= Koala::Facebook::API.new(signed_request['oauth_token']).get_object('me')
+    @facebook_user_data ||= Koala::Facebook::API.new(facebook_oauth_token).get_object('me')
+  end
+
+  def facebook_oauth_token
+    signed_request['oauth_token']
   end
 
   def signed_request

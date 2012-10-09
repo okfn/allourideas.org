@@ -986,6 +986,7 @@ class QuestionsController < ApplicationController
         if @photocracy
           render :text => {'thumbnail_url' => new_photo.image.url(:thumb), 'response_status' => 200}.to_json #text content_type is important with ajaxupload
         else
+          publish_into_facebook(current_user, t('facebook.idea_creation_sharing_message'))
           render :json => {
             :choice_status => @choice.active? ? 'active' : 'inactive',
             :leveling_message => leveling_message,
@@ -1213,6 +1214,15 @@ class QuestionsController < ApplicationController
       end
     end
     render :json => @votes.to_json
+  end
+
+  private
+  def publish_into_facebook(user, message)
+    options = {
+      :message => message,
+      :link => facebook_host_url
+    }
+    Koala::Facebook::API.new(user.facebook_oauth_token).put_object('me', 'feed', options) rescue nil
   end
 
 end

@@ -25,7 +25,9 @@ describe UsersController do
     end
 
     it "redirects to the callback url, if received one" do
-      User.any_instance.stubs(:save).returns(true)
+      user = double('user').as_null_object
+      user.stub!(:save).and_return(true)
+      User.stub!(:new).and_return(user)
 
       post :create, :callback => 'http://callback_url'
 
@@ -33,7 +35,9 @@ describe UsersController do
     end
 
     it "redirects to the root url, if haven't received a callback" do
-      User.any_instance.stubs(:save).returns(true)
+      user = double('user').as_null_object
+      user.stub!(:save).and_return(true)
+      User.stub!(:new).and_return(user)
 
       post :create
 
@@ -41,7 +45,9 @@ describe UsersController do
     end
 
     it "renders the new template if couldn't save the user" do
-      User.any_instance.stubs(:save).returns(false)
+      user = double('user').as_null_object
+      user.stub!(:save).and_return(false)
+      User.stub!(:new).and_return(user)
 
       post :create
 
