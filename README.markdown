@@ -5,7 +5,35 @@ All Our Ideas 2.0.  This codebase runs two sites [photocracy.org](http://www.pho
 
 The allourideas.org project provides the user-facing website for doing pairwise voting. This project depends on the API provided by [pairwise-api](https://github.com/allourideas/pairwise-api).  There are several models that are [ActiveResource](http://apidock.com/rails/v2.3.8/ActiveResource/Base) models that connect to the [pairwise API](https://github.com/allourideas/pairwise-api).
 
-Installing
+Changes in this fork
+-------------------
+
+This was created by OKFN in collaboration with the World Bank, for the brazilian state
+Rio Grande do Sul.
+
+The approach for the poll is different from upstream. Here, we have Consultations
+(i.e. "How to save the world?"). There are Choices to answer the it
+(i.e. "Cure cancer"), each of which is inside a Category (i.e. "Healthcare").
+Every time a user votes in a consultation, the next prompt will be from a random category.
+
+We've also added the possibility to modify a Choice's Category after it was
+created (but before it received any votes). But this depends on our fork of
+pairwise-api (https://github.com/okfn/pairwise-api). If you don't need it, you
+can use the official repository without problems.
+
+The software was modified to work as a Facebook Canvas App as well. When a user
+access it through Facebook, we check if we have another user with her e-mail in
+our database. If so, we link the users together, and log her in as that. If
+not, we create a new user in our DB. This only works if the user authorized our
+app before.
+
+If we're authorized, we'll also post a message in the user's timeline each time
+she add a new Choice to a Consultation.
+
+For a more detailed view of the changes, check our [closed
+issues](https://github.com/okfn/allourideas.org/issues?state=closed).
+
+Installine
 -------------------
 
 <https://github.com/allourideas/allourideas.org/wiki/Installing>
